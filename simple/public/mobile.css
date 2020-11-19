@@ -1,0 +1,75 @@
+#room
+{
+	min-width: 100%;
+	min-height: 100%;
+	background-color: #dddddd;
+}
+
+#room > .primary {
+	position: absolute;
+	left: 0;
+	right: 0;
+	background-color: orange;
+	height: 100%;
+}
+
+#room > .secondary {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	border: 1px solid black;
+	height: 25%;
+	width: 25%;
+	margin-right: 20px;
+	margin-bottom: 20px;
+	overflow: hidden;
+	z-index: 1;
+}
+
+#room > .video-track > video {
+	position: absolute; 
+	left: 50%;
+	transform: translateX(-50%);
+	min-width: 100%;
+	min-height: 100%;
+	width: auto;
+	height: auto; 
+	background-size: cover;
+}
+
+#room > .btn-call {
+	position: absolute;
+	bottom: 30px;
+	opacity: 0.75;
+	left: 50%;
+	transform: translateX(-50%);
+	border: 0;
+}
+
+#room > #start-call {
+    background: #008000;
+	color: #ffffff;
+}
+
+#room > #stop-call {
+    background: #ff0000;
+	color: #ffffff;
+}
+
+
+.btn-circle {
+	text-align: center; 
+}
+
+.btn-circle.btn-xl { 
+	width: 70px; 
+	height: 70px; 
+	padding: 10px 16px; 
+	border-radius: 35px; 
+	font-size: 12px; 
+} 
+
+.hidden {
+	display: none;
+	visibility: hidden;
+}
