@@ -1,0 +1,166 @@
+#room {
+	min-width: 100%;
+	min-height: 100%;
+	margin: 0;
+	background-color: #eeeeee;
+
+	#message:not(:empty) {
+		color: #ffffff;
+		font-weight: bold;
+		font-size: 2.0em;
+		text-align: center;
+		min-width: 100%;
+		width: 100%;
+		max-width: 100%;
+		padding-top: 20%;
+		position: absolute;
+		left: 0;
+		top: 0;
+		z-index: 10;
+	}
+
+	#message:empty {
+		display: hidden;
+		visibility: hidden;
+	}
+
+	&.disconnected {
+
+		video {
+			filter: blur(10px);
+			-webkit-filter: blur(10px);
+			-moz-filter: blur(10px);
+			-o-filter: blur(10px);
+			-ms-filter: blur(10px);
+		}
+
+		#participant-video {
+			display: none;
+			visibility: hidden;
+		}
+
+		#call-button {
+			background: #008000;
+			color: #ffffff;
+		}
+
+	}
+
+	&.connected {
+		
+		#call-button {
+			background: #ff0000;
+			color: #ffffff;
+		}
+
+	}
+
+	.video-track {
+
+		&.primary {
+			position: absolute;
+			left: 0;
+			right: 0;
+			background-color: #eeeeee;
+			height: 100%;
+		}
+
+		&.secondary {
+			position: absolute;
+			right: 0;
+			bottom: 0;
+			border: 1px solid black;
+			height: 25%;
+			width: 25%;
+			margin-right: 20px;
+			margin-bottom: 20px;
+			overflow: hidden;
+			z-index: 1;
+
+			&:empty {
+				display: none !important;
+				visibility: hidden !important;
+			}
+
+			video {
+
+				@media screen and (orientation:portrait) {
+					max-height: 25%;
+				}
+
+				@media screen and (orientation:landscape) {
+					max-width: 25%;
+				}			
+			}
+		}
+
+		video {
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%,-50%);
+			min-width: 100%;
+			min-height: 100%;
+			width: auto;
+			height: auto;
+			background-size: cover;
+		}
+	}
+	
+	#call-button {
+		position: absolute;
+		bottom: 30px;
+		opacity: 0.75;
+		left: 50%;
+		transform: translateX(-50%);
+		border: 0;
+	}
+
+	#mute-button {
+		position: absolute;
+		bottom: 45px;
+		opacity: 0.5;
+		left: 25%;
+		transform: translateX(-50%);
+		border: 0;
+		background: #ffffff;
+		color: #999999;
+		box-shadow: unset !important;
+
+		&.muted-call {
+			color: #ff0000;
+			border: 2px solid #ff0000;
+			opacity: .9;
+
+			> i {
+				color: #ff0000;
+			}
+		}
+	}
+}
+
+.btn-circle {
+	text-align: center;
+
+	&.btn-xl {
+		width: 70px;
+		height: 70px;
+		padding: 10px 16px;
+		border-radius: 35px;
+		font-size: 12px;
+	}
+	
+	&.btn-xxl {
+		width: 100px;
+		height: 100px;
+		padding: 10px 16px;
+		border-radius: 50px;
+		font-size: 16px;
+	}
+}
+
+
+.hidden {
+	display: none !important;
+	visibility: hidden !important;
+}

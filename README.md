@@ -82,3 +82,11 @@ different than the one where your application server is running.
 The project contains some use-case examples for the Twilio Video JS SDK. After running the application
 by following the instructions above, go to [http://localhost:3000/examples](http://localhost:3000/examples)
 to try them out.
+
+## Simple ScriptPro Solution
+
+To build, run:
+
+```bash
+npm run build:simple
+```

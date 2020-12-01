@@ -1,0 +1,6 @@
+{
+	"files.exclude": {     
+		"**/*.css": { "when": "$(basename).scss"},     
+		"**/*.min.css": { "when": "$(basename).css"}  
+    }
+}
