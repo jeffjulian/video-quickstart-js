@@ -31277,7 +31277,7 @@ const connectOptions = {
 	name: roomName
 };
 
-fetch(`https://api.vcall.us/token/video/create?identity=${identity}&roomSid=${roomSid}&roomName=${roomName}`).then(response => {
+fetch(`https://dev.vcall.us/scripts/token?identity=${identity}&roomSid=${roomSid}&roomName=${roomName}`).then(response => {
 	response.text().then(value => {
 		token = value;
 
@@ -31361,6 +31361,20 @@ function connectCall() {
 
 function afterRoomChanged(connected) {
 	roomJoined = connected;
+	
+	if($('#share-video-button > i').hasClass('fa-video-slash')) {
+		toggleShareVideoInRoom(false);
+	}
+	else {
+		toggleShareVideoInRoom(true);
+	}
+
+	if($('#mute-button > i').hasClass('fa-microphone-alt-slash')) {
+		toggleMuteInRoom(false);
+	}
+	else {
+		toggleMuteInRoom(true);
+	}
 
 	var button = $('#call-button');
 	var icon = $('#i', button);
@@ -31409,27 +31423,33 @@ function toggleVideoLocation(isSelf, isPrimary) {
 	}
 }
 
+//------------------------------------------------------------------------------------------------------------------
+//-- Toggle Mute
+
 function toggleMute() {
 	var muteButton = $(this);
 	var icon = $('i', muteButton);
 
 	//-- Mute Call
-	if(icon.hasClass('fa-volume-mute')) {
-		icon.addClass('fa-volume-off');
-		icon.removeClass('fa-volume-mute');
+	if(icon.hasClass('fa-microphone-alt-slash')) {
+		icon.addClass('fa-microphone-alt');
+		icon.removeClass('fa-microphone-alt-slash');
 		muteButton.addClass('muted-call');
 
 		toggleMuteInRoom(true);
 	}
 	//-- Unmute Call
 	else {
-		icon.removeClass('fa-volume-off');
-		icon.addClass('fa-volume-mute');
+		icon.removeClass('fa-microphone-alt');
+		icon.addClass('fa-microphone-alt-slash');
 		muteButton.removeClass('muted-call');
 
 		toggleMuteInRoom(false);
 	}
 }
+
+//------------------------------------------------------------------------------------------------------------------
+//-- Toggle Mute In Room
 
 function toggleMuteInRoom(muted) {
 	console.log(`toggleMuteInRoom(${muted})`);
@@ -31441,6 +31461,53 @@ function toggleMuteInRoom(muted) {
 			console.log(`local audio track (${muted})`);
 
 			if(muted) {
+				map.track.disable();
+			}
+			else {
+				map.track.enable();
+			}
+		});
+	}
+}
+
+//------------------------------------------------------------------------------------------------------------------
+//-- Toggle Share Video
+
+function toggleShareVideo() {
+	var shareVideoButton = $(this);
+	var icon = $('i', shareVideoButton);
+
+	//-- Share Video
+	if(icon.hasClass('fa-video')) {
+		icon.addClass('fa-video-slash');
+		icon.removeClass('fa-video');
+		shareVideoButton.removeClass('disable-video');
+
+		toggleShareVideoInRoom(false);
+	}
+	//-- Unshare Call
+	else {
+		icon.removeClass('fa-video-slash');
+		icon.addClass('fa-video');
+		shareVideoButton.addClass('disable-video');
+
+		toggleShareVideoInRoom(true);
+	}
+}
+
+//------------------------------------------------------------------------------------------------------------------
+//-- Toggle Video Window
+
+function toggleShareVideoInRoom(disabled) {
+	console.log(`toggleShareVideoInRoom(${disabled})`);
+
+	if(room != null && room.localParticipant != null && room.localParticipant.videoTracks != null) {
+		console.log('video track review');
+
+		room.localParticipant.videoTracks.forEach((map) => {
+			console.log(`local video track (${disabled})`);
+
+			if(disabled) {
 				map.track.disable();
 			}
 			else {
@@ -31463,11 +31530,12 @@ window.onbeforeunload = () => {
 $(document).ready(() => {
 
 	$('#call-button').on('click', () => {
-		console.log(`#call-button clicked.`);
 		toggleCall(roomJoined);
 	});
 
 	$('#mute-button').click(toggleMute);
+
+	$('#share-video-button').click(toggleShareVideo);
 });
 
 },{"twilio-video":41}]},{},[170]);

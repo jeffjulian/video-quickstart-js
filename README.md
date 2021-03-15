@@ -1,6 +1,6 @@
-**NEW:** The [Local Video Filter](examples/localvideofilter) example has been updated to use the recently released [Video Processor API](https://github.com/twilio/twilio-video.js/releases/tag/2.13.0) for Chrome.
-
 # Twilio Video Quickstart for JavaScript
+
+**NEW:** The [Local Video Filter](examples/localvideofilter) example has been updated to use the recently released [Video Processor API](https://github.com/twilio/twilio-video.js/releases/tag/2.13.0) for Chrome.
 
 [![OS X/Linus Build Status](https://secure.travis-ci.org/twilio/video-quickstart-js.png?branch=master)](http://travis-ci.org/twilio/video-quickstart-js) [![Windows Build status](https://ci.appveyor.com/api/projects/status/3u69uy9c0lsap3dr?svg=true)](https://ci.appveyor.com/project/markandrus/video-quickstart-js)
 
@@ -84,8 +84,18 @@ to try them out.
 
 ## Simple ScriptPro Solution
 
-To build, run:
+### To build, run
 
 ```bash
 npm run build:simple
 ```
+
+### To Test
+
+1. Create New Session Via [Demo](https://dev.vcall.us/call/demo)
+2. Open Session by clicking on the Pharmacy URL
+3. Copy the Querystring and Open the [Simple Video URL](https://simple.vcall.us) and paste it at the end
+
+### Build SCSS
+
+Press Ctrl + Shift + ~

@@ -118,7 +118,7 @@
 
 	#mute-button {
 		position: absolute;
-		bottom: 45px;
+		bottom: 90px;
 		opacity: 0.5;
 		left: 25%;
 		transform: translateX(-50%);
@@ -137,10 +137,42 @@
 			}
 		}
 	}
+
+	#share-video-button {
+		position: absolute;
+		bottom: 25px;
+		opacity: 0.5;
+		left: 25%;
+		transform: translateX(-50%);
+		border: 0;
+		background: #ffffff;
+		color: #999999;
+		box-shadow: unset !important;
+		font-size: 8px !important;
+
+		&.muted-call,
+		&.disable-video {
+			color: #ff0000;
+			border: 2px solid #ff0000;
+			opacity: .9;
+
+			> i {
+				color: #ff0000;
+			}
+		}
+	}
 }
 
 .btn-circle {
 	text-align: center;
+
+	&.btn-l {
+		width: 50px;
+		height: 50px;
+		padding: 10px 10px;
+		border-radius: 25px;
+		font-size: 12px;
+	}
 
 	&.btn-xl {
 		width: 70px;
