@@ -43,9 +43,23 @@
   color: #ffffff;
 }
 
+#room.disconnected #call-button span:after {
+  content: 'Join';
+}
+
 #room.connected #call-button {
   background: #ff0000;
   color: #ffffff;
+}
+
+#room.connected #call-button span:after {
+  content: 'Leave';
+}
+
+#room.loading .video-track,
+#room.loading .btn-circle {
+  visibility: hidden;
+  display: none;
 }
 
 #room .video-track.primary {
@@ -60,13 +74,15 @@
   position: absolute;
   right: 0;
   bottom: 0;
-  border: 1px solid black;
   height: 25%;
   width: 25%;
   margin-right: 20px;
   margin-bottom: 20px;
   overflow: hidden;
   z-index: 1;
+  border-radius: 16px;
+  border: 5px solid;
+  border-color: rgba(255, 255, 255, 0.6);
 }
 
 #room .video-track.secondary:empty {
@@ -107,49 +123,39 @@
   border: 0;
 }
 
-#room #mute-button {
+#room #mute-button,
+#room #share-video-button {
   position: absolute;
-  bottom: 90px;
   opacity: 0.5;
   left: 25%;
   transform: translateX(-50%);
   border: 0;
-  background: #ffffff;
-  color: #999999;
+  background: #777777;
+  color: #FFFFFF;
   box-shadow: unset !important;
 }
 
-#room #mute-button.muted-call {
-  color: #ff0000;
-  border: 2px solid #ff0000;
-  opacity: .9;
+#room #mute-button.muted-call, #room #mute-button.disable-video,
+#room #share-video-button.muted-call,
+#room #share-video-button.disable-video {
+  color: #AAAAAA;
+  border: 2px solid #AAAAAA;
 }
 
-#room #mute-button.muted-call > i {
-  color: #ff0000;
+#room #mute-button.muted-call > i, #room #mute-button.disable-video > i,
+#room #share-video-button.muted-call > i,
+#room #share-video-button.disable-video > i {
+  color: #AAAAAA;
+}
+
+#room #mute-button {
+  bottom: 90px;
+  font-size: 9px !important;
 }
 
 #room #share-video-button {
-  position: absolute;
   bottom: 25px;
-  opacity: 0.5;
-  left: 25%;
-  transform: translateX(-50%);
-  border: 0;
-  background: #ffffff;
-  color: #999999;
-  box-shadow: unset !important;
   font-size: 8px !important;
-}
-
-#room #share-video-button.muted-call, #room #share-video-button.disable-video {
-  color: #ff0000;
-  border: 2px solid #ff0000;
-  opacity: .9;
-}
-
-#room #share-video-button.muted-call > i, #room #share-video-button.disable-video > i {
-  color: #ff0000;
 }
 
 .btn-circle {
@@ -167,16 +173,16 @@
 .btn-circle.btn-xl {
   width: 70px;
   height: 70px;
-  padding: 10px 16px;
+  padding: 12px 16px;
   border-radius: 35px;
   font-size: 12px;
 }
 
 .btn-circle.btn-xxl {
-  width: 100px;
-  height: 100px;
-  padding: 10px 16px;
-  border-radius: 50px;
+  width: 90px;
+  height: 90px;
+  padding: 14px 16px;
+  border-radius: 45px;
   font-size: 16px;
 }
 

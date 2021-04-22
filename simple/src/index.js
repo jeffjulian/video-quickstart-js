@@ -10,6 +10,7 @@ let roomName = params.get('roomName');
 let identity = params.get('identity');
 let roomSid = params.get('roomSid');
 let messageElement = $('#message');
+let isPharmacy = false;
 
 let token = null;
 let room = null;
@@ -37,9 +38,16 @@ const connectOptions = {
 	name: roomName
 };
 
+messageElement.html('Loading...');
+
 fetch(`https://dev.vcall.us/scripts/token?identity=${identity}&roomSid=${roomSid}&roomName=${roomName}`).then(response => {
 	response.text().then(value => {
 		token = value;
+
+		var roomElement = $('div#room');
+		roomElement.removeClass('loading');
+
+		messageElement.html('Telehealth Preview');
 
 		console.log(`token: ${token}`);
 
@@ -61,10 +69,12 @@ fetch(`https://dev.vcall.us/scripts/token?identity=${identity}&roomSid=${roomSid
 
 function addParticipant(track) {
 	if (track.isEnabled && room.localParticipant.identity !== track.identity) {
+
 		console.warn(`Remote Participant Joined - ${track.identity}`);
 		participantVideo.appendChild(track.attach());
 
 		toggleVideoLocation(true, false);
+		afterRoomChanged(true); 
 	}
 }
 
@@ -93,10 +103,16 @@ function connectCall() {
 
 	connect(token, connectOptions).then(r => {
 		room = r;
+
+		toggleVideoLocation(true, false);
 		console.log(`connecting to room ${room.name}`);
 
-		room.on('trackSubscribed', (t) => addParticipant(t));
-		room.on('reconnected', () => { afterRoomChanged(true); });
+		room.on('trackSubscribed', (t) => {
+			addParticipant(t);
+		});
+		room.on('reconnected', () => { 
+			afterRoomChanged(true); 
+		});
 		room.on('disconnected', (room, error) => {
 			afterRoomChanged(false);
 			messageElement.html('Disconnected');
@@ -115,21 +131,24 @@ function connectCall() {
 
 		afterRoomChanged(true);
 	}).catch(reason => {
-		console.error(JSON.stringify(reason));
+		console.error(reason);
 	});
 }
+
+//------------------------------------------------------------------------------------------------------------------
+//-- Room Changed
 
 function afterRoomChanged(connected) {
 	roomJoined = connected;
 	
-	if($('#share-video-button > i').hasClass('fa-video-slash')) {
+	if($('#share-video-button > i').hasClass('fa-video')) {
 		toggleShareVideoInRoom(false);
 	}
 	else {
 		toggleShareVideoInRoom(true);
 	}
 
-	if($('#mute-button > i').hasClass('fa-microphone-alt-slash')) {
+	if($('#mute-button > i').hasClass('fa-microphone-alt')) {
 		toggleMuteInRoom(false);
 	}
 	else {
@@ -144,7 +163,14 @@ function afterRoomChanged(connected) {
 	roomElement.removeClass(connected ? 'disconnected' : 'connected');
 	
 	if(connected) {
-		messageElement.html('');
+		if (participantVideo.innerHTML === '') {
+			messageElement.html('Waiting on ' + (isPharmacy ? 'patient' : 'clinician') + '...');
+		}
+		else 
+		{
+			messageElement.html('');
+		}
+
 		icon.removeClass('fa-phone-alt');
 		icon.addClass('fa-times');
 	}
@@ -191,17 +217,17 @@ function toggleMute() {
 	var icon = $('i', muteButton);
 
 	//-- Mute Call
-	if(icon.hasClass('fa-microphone-alt-slash')) {
-		icon.addClass('fa-microphone-alt');
-		icon.removeClass('fa-microphone-alt-slash');
+	if(icon.hasClass('fa-microphone-alt')) {
+		icon.addClass('fa-microphone-alt-slash');
+		icon.removeClass('fa-microphone-alt');
 		muteButton.addClass('muted-call');
 
 		toggleMuteInRoom(true);
 	}
 	//-- Unmute Call
 	else {
-		icon.removeClass('fa-microphone-alt');
-		icon.addClass('fa-microphone-alt-slash');
+		icon.removeClass('fa-microphone-alt-slash');
+		icon.addClass('fa-microphone-alt');
 		muteButton.removeClass('muted-call');
 
 		toggleMuteInRoom(false);
@@ -238,17 +264,17 @@ function toggleShareVideo() {
 	var icon = $('i', shareVideoButton);
 
 	//-- Share Video
-	if(icon.hasClass('fa-video')) {
-		icon.addClass('fa-video-slash');
-		icon.removeClass('fa-video');
+	if(icon.hasClass('fa-video-slash')) {
+		icon.addClass('fa-video');
+		icon.removeClass('fa-video-slash');
 		shareVideoButton.removeClass('disable-video');
 
 		toggleShareVideoInRoom(false);
 	}
 	//-- Unshare Call
 	else {
-		icon.removeClass('fa-video-slash');
-		icon.addClass('fa-video');
+		icon.removeClass('fa-video');
+		icon.addClass('fa-video-slash');
 		shareVideoButton.addClass('disable-video');
 
 		toggleShareVideoInRoom(true);

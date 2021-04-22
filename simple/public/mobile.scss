@@ -25,7 +25,6 @@
 	}
 
 	&.disconnected {
-
 		video {
 			filter: blur(10px);
 			-webkit-filter: blur(10px);
@@ -42,17 +41,33 @@
 		#call-button {
 			background: #008000;
 			color: #ffffff;
+			
+			span:after {
+				content: 'Join'
+			}
 		}
+
 
 	}
 
 	&.connected {
-		
 		#call-button {
 			background: #ff0000;
 			color: #ffffff;
+
+			span:after {
+				content: 'Leave'
+			}
 		}
 
+	}
+
+	&.loading {
+		.video-track,
+		.btn-circle {
+			visibility: hidden;
+			display: none;
+		}
 	}
 
 	.video-track {
@@ -69,13 +84,15 @@
 			position: absolute;
 			right: 0;
 			bottom: 0;
-			border: 1px solid black;
 			height: 25%;
 			width: 25%;
 			margin-right: 20px;
 			margin-bottom: 20px;
 			overflow: hidden;
 			z-index: 1;
+			border-radius: 16px;
+			border: 5px solid;
+			border-color: rgba(255, 255, 255, .6);
 
 			&:empty {
 				display: none !important;
@@ -116,50 +133,36 @@
 		border: 0;
 	}
 
-	#mute-button {
+	#mute-button, 
+	#share-video-button {
 		position: absolute;
-		bottom: 90px;
 		opacity: 0.5;
 		left: 25%;
 		transform: translateX(-50%);
 		border: 0;
-		background: #ffffff;
-		color: #999999;
+		background: #777777;
+		color: #FFFFFF;
 		box-shadow: unset !important;
-
-		&.muted-call {
-			color: #ff0000;
-			border: 2px solid #ff0000;
-			opacity: .9;
+		
+		&.muted-call,
+		&.disable-video {
+			color: #AAAAAA;
+			border: 2px solid #AAAAAA;
 
 			> i {
-				color: #ff0000;
+				color: #AAAAAA;
 			}
 		}
 	}
 
-	#share-video-button {
-		position: absolute;
+	#mute-button {
+		bottom: 90px;
+		font-size: 9px !important;
+	}
+
+	#share-video-button {	
 		bottom: 25px;
-		opacity: 0.5;
-		left: 25%;
-		transform: translateX(-50%);
-		border: 0;
-		background: #ffffff;
-		color: #999999;
-		box-shadow: unset !important;
 		font-size: 8px !important;
-
-		&.muted-call,
-		&.disable-video {
-			color: #ff0000;
-			border: 2px solid #ff0000;
-			opacity: .9;
-
-			> i {
-				color: #ff0000;
-			}
-		}
 	}
 }
 
@@ -177,16 +180,16 @@
 	&.btn-xl {
 		width: 70px;
 		height: 70px;
-		padding: 10px 16px;
+		padding: 12px 16px;
 		border-radius: 35px;
 		font-size: 12px;
 	}
 	
 	&.btn-xxl {
-		width: 100px;
-		height: 100px;
-		padding: 10px 16px;
-		border-radius: 50px;
+		width: 90px;
+		height: 90px;
+		padding: 14px 16px;
+		border-radius: 45px;
 		font-size: 16px;
 	}
 }
