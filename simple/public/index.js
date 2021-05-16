@@ -1421,7 +1421,7 @@ function updateTrackIdsToSSRCs(sdpFormat, tracksToSSRCs, sdp) {
 
 module.exports = ChromeRTCPeerConnection;
 
-},{"../mediastream":4,"../rtcrtpsender":11,"../rtcsessiondescription/chrome":12,"../util":16,"../util/eventtarget":15,"../util/latch":17,"../util/sdp":18,"util":169}],8:[function(require,module,exports){
+},{"../mediastream":4,"../rtcrtpsender":11,"../rtcsessiondescription/chrome":12,"../util":16,"../util/eventtarget":15,"../util/latch":17,"../util/sdp":18,"util":172}],8:[function(require,module,exports){
 /* globals RTCPeerConnection */
 'use strict';
 
@@ -1754,7 +1754,7 @@ function overwriteWithInitiallyNegotiatedDtlsRole(description, dtlsRole) {
 
 module.exports = FirefoxRTCPeerConnection;
 
-},{"../rtcsessiondescription/firefox":13,"../util":16,"../util/eventtarget":15,"../util/sdp":18,"util":169}],9:[function(require,module,exports){
+},{"../rtcsessiondescription/firefox":13,"../util":16,"../util/eventtarget":15,"../util/sdp":18,"util":172}],9:[function(require,module,exports){
 'use strict';
 
 if (typeof RTCPeerConnection === 'function') {
@@ -2170,7 +2170,7 @@ function shimDataChannel(dataChannel) {
 
 module.exports = SafariRTCPeerConnection;
 
-},{"../util":16,"../util/eventtarget":15,"../util/latch":17,"../util/sdp":18,"util":169}],11:[function(require,module,exports){
+},{"../util":16,"../util/eventtarget":15,"../util/latch":17,"../util/sdp":18,"util":172}],11:[function(require,module,exports){
 'use strict';
 
 /**
@@ -2354,6 +2354,25 @@ function delegateMethod(source, wrapper, target, methodName) {
     return;
   } else if (methodName.match(/^on[a-z]+$/)) {
     // Skip EventHandlers (these are handled in the constructor).
+    return;
+  }
+
+
+  var isProperty = false;
+  try {
+    var propDesc = Object.getOwnPropertyDescriptor(source, methodName);
+    isProperty = propDesc && !!propDesc.get;
+  } catch (error) {
+    // its okay to eat failure here.
+  }
+
+  // NOTE(mpatwardhan):skip properties. we are only interested in overriding
+  // functions. we do not even want to evaluate  `typeof source[methodName]` for properties
+  // because getter would get invoked, and they might have side effects.
+  // For example RTCPeerConnection.peerIdentity is a property that returns a promise.
+  // calling typeof RTCPeerConnection.peerIdentity, would leak a promise, and in case it rejects
+  // we see errors.
+  if (isProperty) {
     return;
   }
 
@@ -3055,7 +3074,7 @@ exports.updateUnifiedPlanTrackIdsToSSRCs = updateUnifiedPlanTrackIdsToSSRCs;
 },{"./":16}],19:[function(require,module,exports){
 module.exports={
   "name": "@twilio/webrtc",
-  "version": "4.3.2",
+  "version": "4.3.3",
   "description": "WebRTC-related APIs and shims used by twilio-video.js",
   "scripts": {
     "build": "npm-run-all clean lint test",
@@ -3217,7 +3236,7 @@ Backoff.prototype.reset = function() {
 
 module.exports = Backoff;
 
-},{"events":26,"precond":27,"util":169}],22:[function(require,module,exports){
+},{"events":26,"precond":27,"util":172}],22:[function(require,module,exports){
 //      Copyright (c) 2012 Mathieu Turcotte
 //      Licensed under the MIT license.
 
@@ -3409,7 +3428,7 @@ FunctionCall.prototype.handleBackoff_ = function(number, delay, err) {
 
 module.exports = FunctionCall;
 
-},{"./backoff":21,"./strategy/fibonacci":24,"events":26,"precond":27,"util":169}],23:[function(require,module,exports){
+},{"./backoff":21,"./strategy/fibonacci":24,"events":26,"precond":27,"util":172}],23:[function(require,module,exports){
 //      Copyright (c) 2012 Mathieu Turcotte
 //      Licensed under the MIT license.
 
@@ -3452,7 +3471,7 @@ ExponentialBackoffStrategy.prototype.reset_ = function() {
 
 module.exports = ExponentialBackoffStrategy;
 
-},{"./strategy":25,"precond":27,"util":169}],24:[function(require,module,exports){
+},{"./strategy":25,"precond":27,"util":172}],24:[function(require,module,exports){
 //      Copyright (c) 2012 Mathieu Turcotte
 //      Licensed under the MIT license.
 
@@ -3482,7 +3501,7 @@ FibonacciBackoffStrategy.prototype.reset_ = function() {
 
 module.exports = FibonacciBackoffStrategy;
 
-},{"./strategy":25,"util":169}],25:[function(require,module,exports){
+},{"./strategy":25,"util":172}],25:[function(require,module,exports){
 //      Copyright (c) 2012 Mathieu Turcotte
 //      Licensed under the MIT license.
 
@@ -3564,7 +3583,7 @@ BackoffStrategy.prototype.reset_ = function() {
 
 module.exports = BackoffStrategy;
 
-},{"events":26,"util":169}],26:[function(require,module,exports){
+},{"events":26,"util":172}],26:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3971,7 +3990,7 @@ module.exports.checkIsBoolean = typeCheck('boolean');
 module.exports.checkIsFunction = typeCheck('function');
 module.exports.checkIsObject = typeCheck('object');
 
-},{"./errors":29,"util":169}],29:[function(require,module,exports){
+},{"./errors":29,"util":172}],29:[function(require,module,exports){
 /*
  * Copyright (c) 2012 Mathieu Turcotte
  * Licensed under the MIT license.
@@ -3997,7 +4016,7 @@ IllegalStateError.prototype.name = 'IllegalStateError';
 
 module.exports.IllegalStateError = IllegalStateError;
 module.exports.IllegalArgumentError = IllegalArgumentError;
-},{"util":169}],30:[function(require,module,exports){
+},{"util":172}],30:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -4232,7 +4251,7 @@ function createCancelableRoomPromise(getLocalTracks, createLocalParticipant, cre
 }
 
 module.exports = createCancelableRoomPromise;
-},{"./util/cancelablepromise":137}],32:[function(require,module,exports){
+},{"./util/cancelablepromise":139}],32:[function(require,module,exports){
 'use strict';
 
 var _require = require('@twilio/webrtc'),
@@ -4293,6 +4312,10 @@ if (safariVersion) {
 
   isSafariWithoutVP8Support = safariMajorVersion < 12 || safariMajorVersion === 12 && safariMinorVersion < 1;
 }
+
+var deprecatedConnectOptionsProps = new Set([{ didWarn: false, shouldDelete: true, name: 'abortOnIceServersTimeout' }, { didWarn: false, shouldDelete: true, name: 'dscpTagging', newName: 'enableDscp' }, { didWarn: false, shouldDelete: true, name: 'iceServersTimeout' }, { didWarn: false, shouldDelete: false, name: 'eventListener', newName: 'Video.Logger' }, { didWarn: false, shouldDelete: false, name: 'logLevel', newName: 'Video.Logger' }]);
+
+var deprecatedBandwidthProfileOptions = new Set([{ didWarn: false, shouldDelete: false, name: 'maxTracks', newName: 'bandwidthProfile.video.clientTrackSwitchOffControl' }, { didWarn: false, shouldDelete: false, name: 'renderDimensions', newName: 'bandwidthProfile.video.contentPreferencesMode' }]);
 
 /**
  * Connect to a {@link Room}.
@@ -4443,7 +4466,7 @@ function connect(token, options) {
   // NOTE(csantos): Log a warning for the deprecated ConnectOptions properties.
   // The warning is displayed only for the first call to connect() per browser session.
   // Additionally, the options that are no longer needed will be removed.
-  deprecateOptions(options, log);
+  deprecateOptions(options, log, deprecatedConnectOptionsProps);
 
   options = Object.assign({
     automaticSubscription: true,
@@ -4514,6 +4537,44 @@ function connect(token, options) {
   var error = validateBandwidthProfile(options.bandwidthProfile);
   if (error) {
     return CancelablePromise.reject(error);
+  }
+
+  // Note(mpatwardhan): "clientTrackSwitchOffControl" allows tracks to be switched off
+  // and "contentPreferencesMode" allows track dimensions to be specified dynamically.
+  // The properties can have one of the three values internally:
+  // 1) "auto" = sdk will decide and send the hints.
+  // 2) "manual" - app can use api to send the hints.
+  // 3) "disabled" = do not enable this feature. (this is internal only value)
+  // 'disabled' is needed because clientTrackSwitchOffControl and contentPreferencesMode are incompatible with
+  // deprecated properties maxTracks and renderDimensions respectively. once we make @breaking_version_change
+  // we can remove 'disabled' state along with maxTracks and renderDimensions.
+  options.clientTrackSwitchOffControl = 'disabled'; // should sdk turn off idle tracks automatically?
+  options.contentPreferencesMode = 'disabled'; // should sdk  use video element dimensions for content hints?
+  if (options.bandwidthProfile) {
+    options.clientTrackSwitchOffControl = 'auto';
+    options.contentPreferencesMode = 'auto';
+    if (options.bandwidthProfile.video) {
+
+      // log any warnings about deprecated bwp options
+      deprecateOptions(options.bandwidthProfile.video, log, deprecatedBandwidthProfileOptions);
+
+      if ('maxTracks' in options.bandwidthProfile.video) {
+        // when deprecated maxTracks is specified. disable clientTrackSwitchOffControl
+        options.clientTrackSwitchOffControl = 'disabled';
+      } else if (options.bandwidthProfile.video.clientTrackSwitchOffControl === 'manual') {
+        options.clientTrackSwitchOffControl = 'manual';
+      } else {
+        options.clientTrackSwitchOffControl = 'auto';
+      }
+
+      if ('renderDimensions' in options.bandwidthProfile.video) {
+        options.contentPreferencesMode = 'disabled';
+      } else if (options.bandwidthProfile.video.contentPreferencesMode === 'manual') {
+        options.contentPreferencesMode = 'manual';
+      } else {
+        options.contentPreferencesMode = 'auto';
+      }
+    }
   }
 
   var Signaling = options.signaling;
@@ -4675,23 +4736,33 @@ function connect(token, options) {
  * @property {number} [maxSubscriptionBitrate] - Optional parameter to specify the maximum
  *   downlink video bandwidth in bits per second (bps). By default, there are no limits on
  *   the downlink video bandwidth.
- * @property {number} [maxTracks] - Optional parameter to specify the maximum number of visible
- *   {@link RemoteVideoTrack}s, which will be selected based on {@link Track.Priority} and an N-Loudest
- *   policy. By default there are no limits on the number of visible {@link RemoteVideoTrack}s.
+ * @property {ClientTrackSwitchOffControl} [clientTrackSwitchOffControl="auto"] - Optional parameter that determines
+ *    when to turn the {@link RemoteVideoTrack} on or off. When set to "auto", SDK will use the visibility of the
+ *    attached elements to determine if the {@link RemoteVideoTrack} should be turned off or on. When the attached video elements become invisible the {@link RemoteVideoTrack} will
+ *    be turned off, and when elements become visible they will be turned on. When set to "manual" you can turn the {@link RemoteVideoTrack}
+ *    on and off using the api {@link RemoteVideoTrack#switchOn} and {@link RemoteVideoTrack#switchOff} respectively.
+ * @property {VideoContentPreferencesMode} [contentPreferencesMode="auto"] - This Optional parameter configures
+ *    the mode for specifying content preferences for the {@link RemoteVideoTrack}. When set to "auto" the
+ *    SDK determines the render dimensions by inspecting the attached video elements. {@link RemoteVideoTrack}s rendered in smaller video elements
+ *    will receive a lower resolution stream compared to the video rendered in larger video elements. When set to "manual" you can set
+ *    the dimensions programmatically by calling {@link RemoteVideoTrack#setContentPreferences}.
+ * @property {number} [maxTracks] - <code>(deprecated: use "clientTrackSwitchOffControl" instead)</code>. Optional
+ *   parameter to specify the maximum number of visible {@link RemoteVideoTrack}s, which will be selected based on
+ *   {@link Track.Priority} and an N-Loudest policy. By default there are no limits on the number of visible {@link RemoteVideoTrack}s.
  *   0 or a negative value will remove any limit on the maximum number of visible {@link RemoteVideoTrack}s.
  * @property {BandwidthProfileMode} [mode="grid"] - Optional parameter to specify how the {@link RemoteVideoTrack}s'
  *   TrackPriority values are mapped to bandwidth allocation in Group Rooms. This defaults to "grid",
  *   which results in equal bandwidth share allocation to all {@link RemoteVideoTrack}s.
- * @property {VideoRenderDimensions} [renderDimensions] - Optional parameter to specify the desired
- *   render dimensions of {@link RemoteVideoTrack}s based on {@link Track.Priority} and the
- *   {@link RemoteVideoTrack}s of the Dominant Speaker.
+ * @property {VideoRenderDimensions} [renderDimensions] - <code>(deprecated: use "contentPreferencesMode" instead)</code>. Optional
+ * parameter to specify the desired render dimensions of {@link RemoteVideoTrack}s.
  * @property {TrackSwitchOffMode} [trackSwitchOffMode="predicted"] - Optional parameter to configure
  *   how {@link RemoteVideoTrack}s are switched off in response to bandwidth pressure. Defaults to "predicted".
  */
 
 /**
- * {@link VideoRenderDimensions} allows you to specify the desired render dimensions of {@link RemoteVideoTrack}s
- * based on {@link Track.Priority}. The bandwidth allocation algorithm will distribute the available downlink bandwidth
+ * @deprecated
+ * {@link VideoRenderDimensions} allows you to specify the desired render dimensions of {@link RemoteVideoTrack}s.
+ * You can specify 'auto' for this field - which is also default value -  based on {@link Track.Priority}. The bandwidth allocation algorithm will distribute the available downlink bandwidth
  * proportional to the requested render dimensions. This is just an input for calculating the bandwidth to be allocated
  * and does not affect the actual resolution of the {@link RemoteVideoTrack}s.
  * @typedef {object} VideoRenderDimensions
@@ -4884,6 +4955,45 @@ var BandwidthProfileMode = {
 };
 
 /**
+ * {@link VideoContentPreferencesMode} specifies how {@link RemoteVideoTrack}s' render dimensions are
+ * decided by the SDK.
+ * @enum {string}
+ */
+// eslint-disable-next-line
+var VideoContentPreferencesMode = {
+  /**
+   * when set to auto, SDK uses the sizes of the video elements attached to the to the  {@link RemoteVideoTrack} dynamically to
+   * decide the render dimensions. {@link RemoteVideoTrack}s rendered in smaller video elements will be given smaller bandwidth allocation
+   * compared to the tracks rendered in large video elements.
+   */
+  auto: 'auto',
+  /**
+   * When set to manual, application can use {@link RemoteVideoTrack#setContentPreference} to set the
+   * desired render dimensions for the {@link RemoteVideoTrack}.
+   */
+  manual: 'manual'
+};
+
+/**
+ * {@link ClientTrackSwitchOffControl} specifies how {@link RemoteVideoTrack}s' turned on and off
+ * @enum {string}
+ */
+// eslint-disable-next-line
+var ClientTrackSwitchOffControl = {
+  /**
+   * when set to auto, SDK uses the visibility of the video elements attached to the to the  {@link RemoteVideoTrack} to decide.
+   * on turning tracks on or off. The track that are not attached to any video elements or not visible on the screen will be turned
+   * off automatically.
+   */
+  auto: 'auto',
+
+  /**
+   * When set to manual, application can use {@link RemoteVideoTrack}s switchOff and switchOn apis to control turn the track on or off.
+   */
+  manual: 'manual'
+};
+
+/**
  * Names of the supported levels for {@link EventListenerEvent}s.
  * @enum {string}
  */
@@ -5000,10 +5110,8 @@ var EventListenerGroup = {
  * @property {string} name='waiting'
  */
 
-var deprecatedConnectOptionsProps = new Set([{ didWarn: false, shouldDelete: true, name: 'abortOnIceServersTimeout' }, { didWarn: false, shouldDelete: true, name: 'dscpTagging', newName: 'enableDscp' }, { didWarn: false, shouldDelete: true, name: 'iceServersTimeout' }, { didWarn: false, shouldDelete: false, name: 'eventListener', newName: 'Video.Logger' }, { didWarn: false, shouldDelete: false, name: 'logLevel', newName: 'Video.Logger' }]);
-
-function deprecateOptions(options, log) {
-  deprecatedConnectOptionsProps.forEach(function (prop) {
+function deprecateOptions(options, log, deprecationTable) {
+  deprecationTable.forEach(function (prop) {
     var didWarn = prop.didWarn,
         name = prop.name,
         newName = prop.newName,
@@ -5096,7 +5204,7 @@ function normalizeCodecSettings(nameOrSettings) {
 }
 
 module.exports = connect;
-},{"./cancelableroompromise":31,"./createlocaltracks":34,"./encodingparameters":39,"./localparticipant":42,"./media/track/es5":44,"./networkqualityconfiguration":71,"./room":75,"./signaling/v2":89,"./util":144,"./util/cancelablepromise":137,"./util/constants":138,"./util/eventobserver":142,"./util/log":148,"./util/validate":160,"@twilio/webrtc":3,"@twilio/webrtc/lib/util":16}],33:[function(require,module,exports){
+},{"./cancelableroompromise":31,"./createlocaltracks":34,"./encodingparameters":39,"./localparticipant":42,"./media/track/es5":44,"./networkqualityconfiguration":71,"./room":75,"./signaling/v2":89,"./util":146,"./util/cancelablepromise":139,"./util/constants":140,"./util/eventobserver":144,"./util/log":150,"./util/validate":163,"@twilio/webrtc":3,"@twilio/webrtc/lib/util":16}],33:[function(require,module,exports){
 'use strict';
 
 var defaultCreateLocalTracks = require('./createlocaltracks');
@@ -5224,7 +5332,7 @@ module.exports = {
   audio: createLocalAudioTrack,
   video: createLocalVideoTrack
 };
-},{"./createlocaltracks":34,"./util/constants":138}],34:[function(require,module,exports){
+},{"./createlocaltracks":34,"./util/constants":140}],34:[function(require,module,exports){
 'use strict';
 
 var asLocalTrack = require('./util').asLocalTrack;
@@ -5410,7 +5518,7 @@ function createLocalTracks(options) {
  */
 
 module.exports = createLocalTracks;
-},{"./media/track/es5":44,"./util":144,"./util/constants":138,"./util/log":148,"./webaudio/workaround180748":164,"@twilio/webrtc":3}],35:[function(require,module,exports){
+},{"./media/track/es5":44,"./util":146,"./util/constants":140,"./util/log":150,"./webaudio/workaround180748":167,"@twilio/webrtc":3}],35:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -5661,7 +5769,7 @@ var DataTrackSender = function (_DataTrackTransceiver) {
 }(DataTrackTransceiver);
 
 module.exports = DataTrackSender;
-},{"../util":144,"./transceiver":37}],37:[function(require,module,exports){
+},{"../util":146,"./transceiver":37}],37:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -5720,7 +5828,7 @@ var DataTrackTransceiver = function (_TrackTransceiver) {
 }(TrackTransceiver);
 
 module.exports = DataTrackTransceiver;
-},{"../transceiver":134}],38:[function(require,module,exports){
+},{"../transceiver":136}],38:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -5952,7 +6060,7 @@ var _require2 = require('./util'),
     hidePrivateAndCertainPublicPropertiesInClass = _require2.hidePrivateAndCertainPublicPropertiesInClass;
 
 module.exports = hidePrivateAndCertainPublicPropertiesInClass(EventEmitter, ['domain']);
-},{"./util":144,"events":26}],41:[function(require,module,exports){
+},{"./util":146,"events":26}],41:[function(require,module,exports){
 'use strict';
 
 var _require = require('./media/track/es5'),
@@ -6024,7 +6132,7 @@ Object.defineProperties(Video, {
 });
 
 module.exports = Video;
-},{"../package.json":165,"./connect":32,"./createlocaltrack":33,"./createlocaltracks":34,"./media/track/es5":44,"./util/support":156,"./vendor/loglevel":161}],42:[function(require,module,exports){
+},{"../package.json":168,"./connect":32,"./createlocaltrack":33,"./createlocaltracks":34,"./media/track/es5":44,"./util/support":159,"./vendor/loglevel":164}],42:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -6804,7 +6912,7 @@ function getTrackPublication(trackPublications, track) {
 }
 
 module.exports = LocalParticipant;
-},{"./media/track/es5":44,"./media/track/localaudiotrackpublication":50,"./media/track/localdatatrackpublication":52,"./media/track/localvideotrackpublication":56,"./participant":72,"./util":144,"./util/constants":138,"./util/validate":160,"@twilio/webrtc":3}],43:[function(require,module,exports){
+},{"./media/track/es5":44,"./media/track/localaudiotrackpublication":50,"./media/track/localdatatrackpublication":52,"./media/track/localvideotrackpublication":56,"./participant":72,"./util":146,"./util/constants":140,"./util/validate":163,"@twilio/webrtc":3}],43:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -7015,7 +7123,7 @@ function LocalAudioTrack(mediaStreamTrack, options) {
 inherits(LocalAudioTrack, LocalAudioTrackClass);
 
 module.exports = LocalAudioTrack;
-},{"../localaudiotrack":49,"util":169}],46:[function(require,module,exports){
+},{"../localaudiotrack":49,"util":172}],46:[function(require,module,exports){
 // eslint-disable-next-line no-warning-comments
 // TODO(mroberts): Remove this when we go to the next major version. This is
 // only in place so that we can support ES6 classes without requiring `new`.
@@ -7035,7 +7143,7 @@ function LocalDataTrack(options) {
 inherits(LocalDataTrack, LocalDataTrackClass);
 
 module.exports = LocalDataTrack;
-},{"../localdatatrack":51,"util":169}],47:[function(require,module,exports){
+},{"../localdatatrack":51,"util":172}],47:[function(require,module,exports){
 // eslint-disable-next-line no-warning-comments
 // TODO(mroberts): Remove this when we go to the next major version. This is
 // only in place so that we can support ES6 classes without requiring `new`.
@@ -7055,7 +7163,7 @@ function LocalVideoTrack(mediaStreamTrack, options) {
 inherits(LocalVideoTrack, LocalVideoTrackClass);
 
 module.exports = LocalVideoTrack;
-},{"../localvideotrack":55,"util":169}],48:[function(require,module,exports){
+},{"../localvideotrack":55,"util":172}],48:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -7185,7 +7293,7 @@ var Track = function (_EventEmitter) {
  */
 
 module.exports = Track;
-},{"../../eventemitter":40,"../../util":144,"../../util/constants":138,"../../util/log":148}],49:[function(require,module,exports){
+},{"../../eventemitter":40,"../../util":146,"../../util/constants":140,"../../util/log":150}],49:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -8048,17 +8156,20 @@ function restartWhenInadvertentlyStopped(localMediaTrack) {
   // this ensures that we acquire media tracks before RemoteMediaTrack
   // tries to `play` them (in phase 2). This order is important because
   // play can fail on safari if audio is not being captured.
-  documentVisibilityMonitor.onVisible(1, maybeRestart);
+  var onVisibilityChange = function onVisibilityChange(isVisible) {
+    return isVisible ? maybeRestart() : false;
+  };
+  documentVisibilityMonitor.onVisibilityChange(1, onVisibilityChange);
   addMediaStreamTrackListeners();
 
   return function () {
-    documentVisibilityMonitor.offVisible(1, maybeRestart);
+    documentVisibilityMonitor.offVisibilityChange(1, onVisibilityChange);
     removeMediaStreamTrackListeners();
   };
 }
 
 module.exports = mixinLocalMediaTrack;
-},{"../../util":144,"../../util/constants":138,"../../util/detectsilentaudio":139,"../../util/detectsilentvideo":140,"../../util/documentvisibilitymonitor.js":141,"../../util/localmediarestartdeferreds":147,"../../webaudio/workaround180748":164,"./sender":67,"@twilio/webrtc":3,"@twilio/webrtc/lib/util":16}],54:[function(require,module,exports){
+},{"../../util":146,"../../util/constants":140,"../../util/detectsilentaudio":141,"../../util/detectsilentvideo":142,"../../util/documentvisibilitymonitor.js":143,"../../util/localmediarestartdeferreds":149,"../../webaudio/workaround180748":167,"./sender":67,"@twilio/webrtc":3,"@twilio/webrtc/lib/util":16}],54:[function(require,module,exports){
 /* eslint new-cap:0 */
 'use strict';
 
@@ -8190,7 +8301,7 @@ var LocalTrackPublication = function (_TrackPublication) {
 }(TrackPublication);
 
 module.exports = LocalTrackPublication;
-},{"../../util/constants":138,"./trackpublication":68}],55:[function(require,module,exports){
+},{"../../util/constants":140,"./trackpublication":68}],55:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -8620,7 +8731,7 @@ function workaroundSilentLocalVideo(localVideoTrack, doc) {
  */
 
 module.exports = LocalVideoTrack;
-},{"../../util/detectsilentvideo":140,"./localmediatrack":53,"./videotrack":70,"@twilio/webrtc/lib/util":16}],56:[function(require,module,exports){
+},{"../../util/detectsilentvideo":142,"./localmediatrack":53,"./videotrack":70,"@twilio/webrtc/lib/util":16}],56:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -9116,7 +9227,7 @@ function shimMediaElement(el) {
 }
 
 module.exports = MediaTrack;
-},{"../../util":144,"../../util/localmediarestartdeferreds":147,"./":48,"@twilio/webrtc":3,"@twilio/webrtc/lib/util":16}],58:[function(require,module,exports){
+},{"../../util":146,"../../util/localmediarestartdeferreds":149,"./":48,"@twilio/webrtc":3,"@twilio/webrtc/lib/util":16}],58:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -9194,12 +9305,13 @@ var RemoteAudioTrack = function (_RemoteMediaAudioTrac) {
    * @param {boolean} isSwitchedOff - Whether the {@link RemoteAudioTrack} is switched off
    * @param {function(?Track.Priority): void} setPriority - Set or clear the subscribe
    *  {@link Track.Priority} of the {@link RemoteAudioTrack}
+   * @param {function(ClientRenderHint): void} setRenderHint - Set render hints.
    * @param {{log: Log}} options - The {@link RemoteTrack} options
    */
-  function RemoteAudioTrack(sid, mediaTrackReceiver, isEnabled, isSwitchedOff, setPriority, options) {
+  function RemoteAudioTrack(sid, mediaTrackReceiver, isEnabled, isSwitchedOff, setPriority, setRenderHint, options) {
     _classCallCheck(this, RemoteAudioTrack);
 
-    return _possibleConstructorReturn(this, (RemoteAudioTrack.__proto__ || Object.getPrototypeOf(RemoteAudioTrack)).call(this, sid, mediaTrackReceiver, isEnabled, isSwitchedOff, setPriority, options));
+    return _possibleConstructorReturn(this, (RemoteAudioTrack.__proto__ || Object.getPrototypeOf(RemoteAudioTrack)).call(this, sid, mediaTrackReceiver, isEnabled, isSwitchedOff, setPriority, setRenderHint, options));
   }
 
   _createClass(RemoteAudioTrack, [{
@@ -9534,7 +9646,7 @@ var RemoteDataTrack = function (_Track) {
  */
 
 module.exports = RemoteDataTrack;
-},{"../../util/constants":138,"./":48}],62:[function(require,module,exports){
+},{"../../util/constants":140,"./":48}],62:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -9653,9 +9765,10 @@ function mixinRemoteMediaTrack(AudioOrVideoTrack) {
       @param {boolean} isSwitchedOff
      * @param {function(?Track.Priority): void} setPriority - Set or clear the subscribe
      *  {@link Track.Priority} of the {@link RemoteMediaTrack}
+     * @param {function(ClientRenderHint): void} setRenderHint - Set render hints.
      * @param {{log: Log, name: ?string}} options
      */
-    function RemoteMediaTrack(sid, mediaTrackReceiver, isEnabled, isSwitchedOff, setPriority, options) {
+    function RemoteMediaTrack(sid, mediaTrackReceiver, isEnabled, isSwitchedOff, setPriority, setRenderHint, options) {
       _classCallCheck(this, RemoteMediaTrack);
 
       options = Object.assign({
@@ -9682,6 +9795,9 @@ function mixinRemoteMediaTrack(AudioOrVideoTrack) {
         },
         _setPriority: {
           value: setPriority
+        },
+        _setRenderHint: {
+          value: setRenderHint
         },
         isEnabled: {
           enumerable: true,
@@ -9828,7 +9944,10 @@ function playIfPausedWhileInBackground(remoteMediaTrack) {
       kind = remoteMediaTrack.kind;
 
 
-  function onVisibilityChanged() {
+  function onVisibilityChanged(isVisible) {
+    if (!isVisible) {
+      return;
+    }
     remoteMediaTrack._attachments.forEach(function (el) {
       var shim = remoteMediaTrack._elShims.get(el);
       var isInadvertentlyPaused = el.paused && shim && !shim.pausedIntentionally();
@@ -9851,9 +9970,9 @@ function playIfPausedWhileInBackground(remoteMediaTrack) {
   // this ensures that any LocalMediaTrack's restart (which listen on phase 1) gets executed
   // first. This order is important because we `play` tracks in the callback, and
   // play can fail on safari if audio is not being captured.
-  documentVisibilityMonitor.onVisible(2, onVisibilityChanged);
+  documentVisibilityMonitor.onVisibilityChange(2, onVisibilityChanged);
   return function () {
-    documentVisibilityMonitor.offVisible(2, onVisibilityChanged);
+    documentVisibilityMonitor.offVisibilityChange(2, onVisibilityChanged);
   };
 }
 
@@ -9885,8 +10004,18 @@ function playIfPausedWhileInBackground(remoteMediaTrack) {
  * @event RemoteMediaTrack#switchedOn
  */
 
+/**
+ * A {@link ClientRenderHint} object specifies track dimensions and /enabled disable state.
+ * This state will be used by the server(SFU) to determine bandwidth allocation for the track,
+ * and turn it on or off as needed.
+ * @typedef {object} ClientRenderHint
+ * @property {boolean} [enabled] - track is enabled or disabled. defaults to disabled.
+ * @property {VideoTrack.Dimensions} [renderDimensions] - Optional parameter to specify the desired
+ *   render dimensions of {@link RemoteVideoTrack}s. This property must be specified if enabled=true
+ */
+
 module.exports = mixinRemoteMediaTrack;
-},{"../../util/constants":138,"../../util/documentvisibilitymonitor.js":141,"@twilio/webrtc/lib/util":16}],64:[function(require,module,exports){
+},{"../../util/constants":140,"../../util/documentvisibilitymonitor.js":143,"@twilio/webrtc/lib/util":16}],64:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -10111,6 +10240,8 @@ module.exports = RemoteTrackPublication;
 },{"./trackpublication":68}],65:[function(require,module,exports){
 'use strict';
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
@@ -10123,6 +10254,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var mixinRemoteMediaTrack = require('./remotemediatrack');
 var VideoTrack = require('./videotrack');
+var documentVisibilityMonitor = require('../../util/documentvisibilitymonitor.js');
+
+var _require = require('../../util/nullobserver.js'),
+    NullObserver = _require.NullObserver;
 
 var RemoteMediaVideoTrack = mixinRemoteMediaTrack(VideoTrack);
 
@@ -10153,48 +10288,229 @@ var RemoteVideoTrack = function (_RemoteMediaVideoTrac) {
    * @param {boolean} isSwitchedOff - Whether the {@link RemoteVideoTrack} is switched off
    * @param {function(?Track.Priority): void} setPriority - Set or clear the subscribe
    *  {@link Track.Priority} of the {@link RemoteVideoTrack}
+   * @param {function(ClientRenderHint): void} setRenderHint - Set render hints.
    * @param {{log: Log}} options - The {@link RemoteTrack} options
    */
-  function RemoteVideoTrack(sid, mediaTrackReceiver, isEnabled, isSwitchedOff, setPriority, options) {
+  function RemoteVideoTrack(sid, mediaTrackReceiver, isEnabled, isSwitchedOff, setPriority, setRenderHint, options) {
     _classCallCheck(this, RemoteVideoTrack);
 
-    return _possibleConstructorReturn(this, (RemoteVideoTrack.__proto__ || Object.getPrototypeOf(RemoteVideoTrack)).call(this, sid, mediaTrackReceiver, isEnabled, isSwitchedOff, setPriority, options));
+    options = Object.assign({
+      clientTrackSwitchOffControl: 'auto',
+      contentPreferencesMode: 'auto',
+      enableDocumentVisibilityTurnOff: true
+    }, options);
+
+    options = Object.assign({
+      IntersectionObserver: typeof IntersectionObserver === 'undefined' || options.clientTrackSwitchOffControl !== 'auto' ? NullObserver : IntersectionObserver,
+      ResizeObserver: typeof ResizeObserver === 'undefined' || options.contentPreferencesMode !== 'auto' ? NullObserver : ResizeObserver
+    }, options);
+
+    var _this = _possibleConstructorReturn(this, (RemoteVideoTrack.__proto__ || Object.getPrototypeOf(RemoteVideoTrack)).call(this, sid, mediaTrackReceiver, isEnabled, isSwitchedOff, setPriority, setRenderHint, options));
+
+    Object.defineProperties(_this, {
+      _enableDocumentVisibilityTurnOff: {
+        value: options.enableDocumentVisibilityTurnOff === true && options.clientTrackSwitchOffControl === 'auto'
+      },
+      _documentVisibilityTurnOffCleanup: {
+        value: null,
+        writable: true
+      },
+      _clientTrackSwitchOffControl: {
+        value: options.clientTrackSwitchOffControl
+      },
+      _contentPreferencesMode: {
+        value: options.contentPreferencesMode
+      },
+      _invisibleElements: {
+        value: new WeakSet()
+      },
+      _resizeObserver: {
+        value: new options.ResizeObserver(function (entries) {
+          // NOTE(mpatwardhan): we ignore elements in _invisibleElements
+          // to ensure that ResizeObserver does not end-up turning off a track when a fresh Video element is
+          // attached and IntersectionObserver has not had its callback executed yet.
+          var visibleElementResized = entries.find(function (entry) {
+            return !_this._invisibleElements.has(entry.target);
+          });
+          if (visibleElementResized) {
+            maybeUpdateRenderHints(_this);
+          }
+        })
+      },
+      _intersectionObserver: {
+        value: new options.IntersectionObserver(function (entries) {
+          var shouldSetRenderHint = false;
+          entries.forEach(function (entry) {
+            var wasVisible = !_this._invisibleElements.has(entry.target);
+            if (wasVisible !== entry.isIntersecting) {
+              if (entry.isIntersecting) {
+                _this._log.debug('intersectionObserver detected: Off => On');
+                _this._invisibleElements.delete(entry.target);
+              } else {
+                _this._log.debug('intersectionObserver detected: On => Off');
+                _this._invisibleElements.add(entry.target);
+              }
+              shouldSetRenderHint = true;
+            }
+          });
+          if (shouldSetRenderHint) {
+            maybeUpdateRenderHints(_this);
+          }
+        }, { threshold: 0.25 })
+      }
+    });
+    return _this;
   }
 
   /**
-   * Add a {@link VideoProcessor} to allow for custom processing of video frames belonging to a VideoTrack.
-   * When a Participant unpublishes and re-publishes a VideoTrack, a new RemoteVideoTrack is created and
-   * any VideoProcessors attached to the previous RemoteVideoTrack would have to be re-added again.
-   * Only Chrome supports this as of now. Calling this API from a non-supported browser will result in a log warning.
-   * @param {VideoProcessor} processor - The {@link VideoProcessor} to use.
-   * @returns {this}
-   * @example
-   * class GrayScaleProcessor {
-   *   constructor(percentage) {
-   *     this.outputFrame = new OffscreenCanvas(0, 0);
-   *     this.percentage = percentage;
-   *   }
-   *   processFrame(inputFrame) {
-   *     this.outputFrame.width = inputFrame.width;
-   *     this.outputFrame.height = inputFrame.height;
-   *
-   *     const context = this.outputFrame.getContext('2d');
-   *     context.filter = `grayscale(${this.percentage}%)`;
-   *     context.drawImage(inputFrame, 0, 0, inputFrame.width, inputFrame.height);
-   *     return this.outputFrame;
-   *   }
-   * }
-   *
-   * const grayscaleProcessor = new GrayScaleProcessor(100);
-   *
-   * Array.from(room.participants.values()).forEach(participant => {
-   *   const remoteVideoTrack = Array.from(participant.videoTracks.values())[0].track;
-   *   remoteVideoTrack.addProcessor(grayscaleProcessor);
-   * });
+   * @private
    */
 
 
   _createClass(RemoteVideoTrack, [{
+    key: '_start',
+    value: function _start(dummyEl) {
+      var result = _get(RemoteVideoTrack.prototype.__proto__ || Object.getPrototypeOf(RemoteVideoTrack.prototype), '_start', this).call(this, dummyEl);
+      // NOTE(mpatwardhan): after emitting started, update render hints only if clientTrackSwitchOffControl is 'auto'.
+      if (this._clientTrackSwitchOffControl === 'auto') {
+        maybeUpdateRenderHints(this);
+      }
+      return result;
+    }
+
+    /**
+     * Request to switch on a {@link RemoteVideoTrack}, This method is applicable only for the group rooms and only when connected with
+     * clientTrackSwitchOffControl in video bandwidth profile options set to 'manual'
+     * @returns {this}
+     */
+
+  }, {
+    key: 'switchOn',
+    value: function switchOn() {
+      if (this._clientTrackSwitchOffControl !== 'manual') {
+        throw new Error('Invalid state. You can call switchOn only when bandwidthProfile.video.clientTrackSwitchOffControl is set to "manual"');
+      }
+      this._setRenderHint({ enabled: true });
+      return this;
+    }
+
+    /**
+     * Request to switch off a {@link RemoteVideoTrack}, This method is applicable only for the group rooms and only when connected with
+     * clientTrackSwitchOffControl in video bandwidth profile options set to 'manual'
+     * @returns {this}
+     */
+
+  }, {
+    key: 'switchOff',
+    value: function switchOff() {
+      if (this._clientTrackSwitchOffControl !== 'manual') {
+        throw new Error('Invalid state. You can call switchOff only when bandwidthProfile.video.clientTrackSwitchOffControl is set to "manual"');
+      }
+      this._setRenderHint({ enabled: false });
+      return this;
+    }
+
+    /**
+     * Set the {@link RemoteVideoTrack}'s content preferences. This method is applicable only for the group rooms and only when connected with
+     * videoContentPreferencesMode in video bandwidth profile options set to 'manual'
+     * @param {VideoContentPreferences} contentPreferences - requested preferences.
+     * @returns {this}
+     */
+
+  }, {
+    key: 'setContentPreferences',
+    value: function setContentPreferences(contentPreferences) {
+      if (this._contentPreferencesMode !== 'manual') {
+        throw new Error('Invalid state. You can call switchOn only when bandwidthProfile.video.contentPreferencesMode is set to "manual"');
+      }
+
+      if (contentPreferences.renderDimensions) {
+        this._setRenderHint({ renderDimensions: contentPreferences.renderDimensions });
+      }
+      return this;
+    }
+  }, {
+    key: 'attach',
+    value: function attach(el) {
+      var result = _get(RemoteVideoTrack.prototype.__proto__ || Object.getPrototypeOf(RemoteVideoTrack.prototype), 'attach', this).call(this, el);
+
+      if (this._clientTrackSwitchOffControl === 'auto') {
+        // start off the element as invisible. will mark it
+        // visible once intersection observer calls back.
+        this._invisibleElements.add(result);
+
+        // NOTE(mpatwardhan): we do not call maybeUpdateRenderHints here,
+        // because the dimensions are not known for freshly created
+        // elements. we will get non-zero dimensions in _intersectionObserver
+        // callback and then will call maybeUpdateRenderHints.
+      }
+
+      this._intersectionObserver.observe(result);
+      this._resizeObserver.observe(result);
+
+      if (this._enableDocumentVisibilityTurnOff) {
+        this._documentVisibilityTurnOffCleanup = this._documentVisibilityTurnOffCleanup || setupDocumentVisibilityTurnOff(this);
+      }
+
+      return result;
+    }
+  }, {
+    key: 'detach',
+    value: function detach(el) {
+      var _this2 = this;
+
+      var result = _get(RemoteVideoTrack.prototype.__proto__ || Object.getPrototypeOf(RemoteVideoTrack.prototype), 'detach', this).call(this, el);
+      var elements = Array.isArray(result) ? result : [result];
+      elements.forEach(function (element) {
+        _this2._intersectionObserver.unobserve(element);
+        _this2._resizeObserver.unobserve(element);
+        _this2._invisibleElements.delete(element);
+      });
+
+      if (this._attachments.size === 0) {
+        if (this._documentVisibilityTurnOffCleanup) {
+          this._documentVisibilityTurnOffCleanup();
+          this._documentVisibilityTurnOffCleanup = null;
+        }
+      }
+
+      maybeUpdateRenderHints(this);
+      return result;
+    }
+
+    /**
+     * Add a {@link VideoProcessor} to allow for custom processing of video frames belonging to a VideoTrack.
+     * When a Participant un-publishes and re-publishes a VideoTrack, a new RemoteVideoTrack is created and
+     * any VideoProcessors attached to the previous RemoteVideoTrack would have to be re-added again.
+     * Only Chrome supports this as of now. Calling this API from a non-supported browser will result in a log warning.
+     * @param {VideoProcessor} processor - The {@link VideoProcessor} to use.
+     * @returns {this}
+     * @example
+     * class GrayScaleProcessor {
+     *   constructor(percentage) {
+     *     this.outputFrame = new OffscreenCanvas(0, 0);
+     *     this.percentage = percentage;
+     *   }
+     *   processFrame(inputFrame) {
+     *     this.outputFrame.width = inputFrame.width;
+     *     this.outputFrame.height = inputFrame.height;
+     *
+     *     const context = this.outputFrame.getContext('2d');
+     *     context.filter = `grayscale(${this.percentage}%)`;
+     *     context.drawImage(inputFrame, 0, 0, inputFrame.width, inputFrame.height);
+     *     return this.outputFrame;
+     *   }
+     * }
+     *
+     * const grayscaleProcessor = new GrayScaleProcessor(100);
+     *
+     * Array.from(room.participants.values()).forEach(participant => {
+     *   const remoteVideoTrack = Array.from(participant.videoTracks.values())[0].track;
+     *   remoteVideoTrack.addProcessor(grayscaleProcessor);
+     * });
+     */
+
+  }, {
     key: 'addProcessor',
     value: function addProcessor() {
       return _get(RemoteVideoTrack.prototype.__proto__ || Object.getPrototypeOf(RemoteVideoTrack.prototype), 'addProcessor', this).apply(this, arguments);
@@ -10266,6 +10582,53 @@ var RemoteVideoTrack = function (_RemoteMediaVideoTrac) {
   return RemoteVideoTrack;
 }(RemoteMediaVideoTrack);
 
+function setupDocumentVisibilityTurnOff(removeVideoTrack) {
+  function onVisibilityChanged() {
+    maybeUpdateRenderHints(removeVideoTrack);
+  }
+
+  documentVisibilityMonitor.onVisibilityChange(1, onVisibilityChanged);
+  return function () {
+    documentVisibilityMonitor.offVisibilityChange(1, onVisibilityChanged);
+  };
+}
+
+function maybeUpdateRenderHints(removeVideoTrack) {
+  // maybeUpdateRenderHints is applicable only for "auto" modes.
+  if (removeVideoTrack._clientTrackSwitchOffControl !== 'auto' && removeVideoTrack._contentPreferencesMode !== 'auto') {
+    return;
+  }
+
+  var elements = removeVideoTrack._getAllAttachedElements();
+  var updatedRenderHint = {};
+  if (removeVideoTrack._clientTrackSwitchOffControl === 'auto') {
+    // consider only visible elements.
+    elements = elements.filter(function (el) {
+      return !removeVideoTrack._invisibleElements.has(el);
+    });
+    updatedRenderHint.enabled = document.visibilityState === 'visible' && elements.length > 0;
+  }
+
+  if (removeVideoTrack._contentPreferencesMode === 'auto' && elements.length > 0) {
+    var _elements$sort = elements.sort(function (el1, el2) {
+      return el2.clientHeight + el2.clientWidth - el1.clientHeight - el1.clientWidth - 1;
+    }),
+        _elements$sort2 = _slicedToArray(_elements$sort, 1),
+        _elements$sort2$ = _elements$sort2[0],
+        clientHeight = _elements$sort2$.clientHeight,
+        clientWidth = _elements$sort2$.clientWidth;
+
+    updatedRenderHint.renderDimensions = { height: clientHeight, width: clientWidth };
+  }
+
+  removeVideoTrack._log.debug('updating render hint:', updatedRenderHint);
+  removeVideoTrack._setRenderHint(updatedRenderHint);
+}
+/**
+ * @typedef {object} VideoContentPreferences
+ * @property {VideoTrack.Dimensions} [renderDimensions] - Render Dimensions to request for the {@link RemoteVideoTrack}.
+ */
+
 /**
  * The {@link RemoteVideoTrack}'s dimensions changed.
  * @param {RemoteVideoTrack} track - The {@link RemoteVideoTrack} whose
@@ -10309,7 +10672,7 @@ var RemoteVideoTrack = function (_RemoteMediaVideoTrac) {
  */
 
 module.exports = RemoteVideoTrack;
-},{"./remotemediatrack":63,"./videotrack":70}],66:[function(require,module,exports){
+},{"../../util/documentvisibilitymonitor.js":143,"../../util/nullobserver.js":152,"./remotemediatrack":63,"./videotrack":70}],66:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -10633,7 +10996,7 @@ var TrackPublication = function (_EventEmitter) {
  */
 
 module.exports = TrackPublication;
-},{"../../eventemitter":40,"../../util":144,"../../util/constants":138,"../../util/log":148}],69:[function(require,module,exports){
+},{"../../eventemitter":40,"../../util":146,"../../util/constants":140,"../../util/log":150}],69:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -10707,7 +11070,7 @@ var MediaTrackTransceiver = function (_TrackTransceiver) {
 }(TrackTransceiver);
 
 module.exports = MediaTrackTransceiver;
-},{"../../transceiver":134}],70:[function(require,module,exports){
+},{"../../transceiver":136}],70:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -11269,7 +11632,7 @@ function dimensionsChanged(track, elem) {
  */
 
 module.exports = VideoTrack;
-},{"../../util/constants":138,"./mediatrack":57}],71:[function(require,module,exports){
+},{"../../util/constants":140,"./mediatrack":57}],71:[function(require,module,exports){
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -11366,7 +11729,7 @@ var NetworkQualityConfigurationImpl = function (_EventEmitter) {
 }(EventEmitter);
 
 module.exports = NetworkQualityConfigurationImpl;
-},{"./util":144,"./util/constants":138,"events":26}],72:[function(require,module,exports){
+},{"./util":146,"./util/constants":140,"events":26}],72:[function(require,module,exports){
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -11480,6 +11843,12 @@ var Participant = function (_EventEmitter) {
       },
       _instanceId: {
         value: ++nInstances
+      },
+      _clientTrackSwitchOffControl: {
+        value: options.clientTrackSwitchOffControl
+      },
+      _contentPreferencesMode: {
+        value: options.contentPreferencesMode
       },
       _log: {
         value: log
@@ -11652,7 +12021,10 @@ var Participant = function (_EventEmitter) {
   }, {
     key: '_handleTrackSignalingEvents',
     value: function _handleTrackSignalingEvents() {
-      var log = this._log;
+      var log = this._log,
+          clientTrackSwitchOffControl = this._clientTrackSwitchOffControl,
+          contentPreferencesMode = this._contentPreferencesMode;
+
       var self = this;
 
       if (this.state === 'disconnected') {
@@ -11733,11 +12105,16 @@ var Participant = function (_EventEmitter) {
           return;
         }
 
-        var options = { log: log, name: name };
+        var options = { log: log, name: name, clientTrackSwitchOffControl: clientTrackSwitchOffControl, contentPreferencesMode: contentPreferencesMode };
         var setPriority = function setPriority(newPriority) {
           return participantSignaling.updateSubscriberTrackPriority(sid, newPriority);
         };
-        var track = kind === 'data' ? new RemoteTrack(sid, trackTransceiver, options) : new RemoteTrack(sid, trackTransceiver, isEnabled, isSwitchedOff, setPriority, options);
+        var setRenderHint = function setRenderHint(renderHint) {
+          if (signaling.isSubscribed) {
+            participantSignaling.updateTrackRenderHint(sid, renderHint);
+          }
+        };
+        var track = kind === 'data' ? new RemoteTrack(sid, trackTransceiver, options) : new RemoteTrack(sid, trackTransceiver, isEnabled, isSwitchedOff, setPriority, setRenderHint, options);
 
         self._addTrack(track, publication, trackTransceiver.id);
       }
@@ -11983,6 +12360,7 @@ function reemitSignalingStateChangedEvents(participant, signaling) {
         }
       });
 
+      // eslint-disable-next-line no-warning-comments
       // TODO(joma): Removing this introduced unit test failures in the RemoteParticipant.
       // Investigate further before removing.
       signaling.tracks.forEach(function (trackSignaling) {
@@ -12068,7 +12446,7 @@ function reemitTrackPublicationEvents(participant, publication) {
 }
 
 module.exports = Participant;
-},{"./eventemitter":40,"./media/track/remoteaudiotrack":59,"./media/track/remoteaudiotrackpublication":60,"./media/track/remotedatatrack":61,"./media/track/remotedatatrackpublication":62,"./media/track/remotevideotrack":65,"./media/track/remotevideotrackpublication":66,"./util":144}],73:[function(require,module,exports){
+},{"./eventemitter":40,"./media/track/remoteaudiotrack":59,"./media/track/remoteaudiotrackpublication":60,"./media/track/remotedatatrack":61,"./media/track/remotedatatrackpublication":62,"./media/track/remotevideotrack":65,"./media/track/remotevideotrackpublication":66,"./util":146}],73:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -12328,6 +12706,7 @@ var RemoteParticipant = function (_Participant) {
   }, {
     key: '_removeTrackPublication',
     value: function _removeTrackPublication(publication) {
+      this._signaling.clearTrackHint(publication.trackSid);
       var removedPublication = _get(RemoteParticipant.prototype.__proto__ || Object.getPrototypeOf(RemoteParticipant.prototype), '_removeTrackPublication', this).call(this, publication);
       if (!removedPublication) {
         return null;
@@ -12553,6 +12932,12 @@ var Room = function (_EventEmitter) {
     Object.defineProperties(_this, {
       _log: {
         value: log
+      },
+      _clientTrackSwitchOffControl: {
+        value: options.clientTrackSwitchOffControl || 'disabled'
+      },
+      _contentPreferencesMode: {
+        value: options.contentPreferencesMode || 'disabled'
       },
       _instanceId: {
         value: ++nInstances
@@ -12954,8 +13339,11 @@ function rewriteLocalTrackIds(room, trackStats) {
  */
 
 function connectParticipant(room, participantSignaling) {
-  var log = room._log;
-  var participant = new RemoteParticipant(participantSignaling, { log: log });
+  var log = room._log,
+      clientTrackSwitchOffControl = room._clientTrackSwitchOffControl,
+      contentPreferencesMode = room._contentPreferencesMode;
+
+  var participant = new RemoteParticipant(participantSignaling, { log: log, clientTrackSwitchOffControl: clientTrackSwitchOffControl, contentPreferencesMode: contentPreferencesMode });
 
   log.info('A new RemoteParticipant connected:', participant);
   room._participants.set(participant.sid, participant);
@@ -13048,7 +13436,7 @@ function handleSignalingEvents(room, signaling) {
 }
 
 module.exports = Room;
-},{"./eventemitter":40,"./remoteparticipant":74,"./stats/statsreport":131,"./util":144}],76:[function(require,module,exports){
+},{"./eventemitter":40,"./remoteparticipant":74,"./stats/statsreport":133,"./util":146}],76:[function(require,module,exports){
 /* eslint consistent-return:0 */
 'use strict';
 
@@ -13241,7 +13629,7 @@ var Signaling = function (_StateMachine) {
 }(StateMachine);
 
 module.exports = Signaling;
-},{"../statemachine":103,"./participant":79,"./room":83}],77:[function(require,module,exports){
+},{"../statemachine":105,"./participant":79,"./room":83}],77:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -13562,9 +13950,6 @@ var ParticipantSignaling = function (_StateMachine) {
     var _this = _possibleConstructorReturn(this, (ParticipantSignaling.__proto__ || Object.getPrototypeOf(ParticipantSignaling)).call(this, 'connecting', states));
 
     Object.defineProperties(_this, {
-      _enqueuedPriorityUpdates: {
-        value: new Map()
-      },
       _identity: {
         writable: true,
         value: null
@@ -13580,10 +13965,6 @@ var ParticipantSignaling = function (_StateMachine) {
       _sid: {
         writable: true,
         value: null
-      },
-      _trackPrioritySignaling: {
-        value: null,
-        writable: true
       },
       identity: {
         enumerable: true,
@@ -13679,45 +14060,6 @@ var ParticipantSignaling = function (_StateMachine) {
     }
 
     /**
-     * updates the subscriber priority for the given track.
-     * @param {Track.SID} trackSid
-     * @param {?Track.Priority} priority
-     * @returns {void}
-     */
-
-  }, {
-    key: 'updateSubscriberTrackPriority',
-    value: function updateSubscriberTrackPriority(trackSid, priority) {
-      // note the most recent priority update for the track.
-      this._enqueuedPriorityUpdates.set(trackSid, priority);
-      if (this._trackPrioritySignaling) {
-        this._trackPrioritySignaling.sendTrackPriorityUpdate(trackSid, 'subscribe', priority);
-      }
-    }
-
-    /**
-     * Set the {@link TrackPrioritySignaling}.
-     * @param {TrackPrioritySignaling} trackPrioritySignaling
-     * @returns {this}
-     */
-
-  }, {
-    key: 'setTrackPrioritySignaling',
-    value: function setTrackPrioritySignaling(trackPrioritySignaling) {
-      var _this2 = this;
-
-      this._trackPrioritySignaling = trackPrioritySignaling;
-      if (trackPrioritySignaling) {
-        this._enqueuedPriorityUpdates.forEach(function (priority, trackSid) {
-          _this2._trackPrioritySignaling.sendTrackPriorityUpdate(trackSid, 'subscribe', priority);
-        });
-        // NOTE(mpatwardhan)- we intentionally do not clear _enqueuedPriorityUpdates,
-        // this cache will be used to re-send the priorities in case of VMS-FailOver.
-      }
-      return this;
-    }
-
-    /**
      * Connect the {@link ParticipantSignaling}.
      * @param {Participant.SID} sid
      * @param {string} identity
@@ -13792,7 +14134,7 @@ var ParticipantSignaling = function (_StateMachine) {
  */
 
 module.exports = ParticipantSignaling;
-},{"../statemachine":103,"../stats/networkqualitystats":118}],80:[function(require,module,exports){
+},{"../statemachine":105,"../stats/networkqualitystats":120}],80:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -14231,7 +14573,7 @@ var RoomSignaling = function (_StateMachine) {
   }, {
     key: 'toString',
     value: function toString() {
-      return '[RoomSignaling #' + this._instanceId + ']';
+      return '[RoomSignaling #' + this._instanceId + ': ' + (this.localParticipant ? this.localParticipant.sid : 'null') + ']';
     }
 
     /**
@@ -14366,7 +14708,7 @@ function maybeUpdateState(roomSignaling) {
 }
 
 module.exports = RoomSignaling;
-},{"../statemachine":103,"../util":144,"../util/constants":138,"../util/log":148,"../util/timeout":157,"../util/twilio-video-errors":158,"./recording":80}],84:[function(require,module,exports){
+},{"../statemachine":105,"../util":146,"../util/constants":140,"../util/log":150,"../util/timeout":160,"../util/twilio-video-errors":161,"./recording":80}],84:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -14657,6 +14999,12 @@ function createCancelableRoomSignalingPromise(token, wsServer, localParticipant,
         sdpSemantics = _options2.sdpSemantics,
         wsServerInsights = _options2.wsServerInsights;
 
+    // decide which msp channels to request
+    // dominantSpeaker, networkQuality
+
+    var trackPriority = !!bandwidthProfile;
+    var trackSwitchOff = !!bandwidthProfile;
+    var renderHints = !!bandwidthProfile && (options.clientTrackSwitchOffControl !== 'disabled' || options.contentPreferencesMode !== 'disabled');
 
     var transportOptions = Object.assign({
       automaticSubscription: automaticSubscription,
@@ -14671,7 +15019,10 @@ function createCancelableRoomSignalingPromise(token, wsServer, localParticipant,
       insights: insights,
       onIced: onIced,
       realm: realm,
-      sdpSemantics: sdpSemantics
+      renderHints: renderHints,
+      sdpSemantics: sdpSemantics,
+      trackPriority: trackPriority,
+      trackSwitchOff: trackSwitchOff
     }, typeof wsServerInsights === 'string' ? {
       wsServerInsights: wsServerInsights
     } : {}, InsightsPublisher ? {
@@ -14733,7 +15084,7 @@ function createCancelableRoomSignalingPromise(token, wsServer, localParticipant,
 }
 
 module.exports = createCancelableRoomSignalingPromise;
-},{"../../util":144,"../../util/cancelablepromise":137,"../../util/twilio-video-errors":158,"./peerconnectionmanager":95,"./room":99,"./twilioconnectiontransport":102}],86:[function(require,module,exports){
+},{"../../util":146,"../../util/cancelablepromise":139,"../../util/twilio-video-errors":161,"./peerconnectionmanager":96,"./room":101,"./twilioconnectiontransport":104}],86:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -14744,26 +15095,23 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _require = require('events'),
-    EventEmitter = _require.EventEmitter;
+var MediaSignaling = require('./mediasignaling');
 
 /**
  * @property {?Track.SID} loudestParticipantSid
  * @emits DominantSpeakerSignaling#updated
  */
 
-
-var DominantSpeakerSignaling = function (_EventEmitter) {
-  _inherits(DominantSpeakerSignaling, _EventEmitter);
+var DominantSpeakerSignaling = function (_MediaSignaling) {
+  _inherits(DominantSpeakerSignaling, _MediaSignaling);
 
   /**
    * Construct an {@link DominantSpeakerSignaling}.
-   * @param {MediaSignalingTransport} mediaSignalingTransport
    */
-  function DominantSpeakerSignaling(mediaSignalingTransport) {
+  function DominantSpeakerSignaling(getReceiver, options) {
     _classCallCheck(this, DominantSpeakerSignaling);
 
-    var _this = _possibleConstructorReturn(this, (DominantSpeakerSignaling.__proto__ || Object.getPrototypeOf(DominantSpeakerSignaling)).call(this));
+    var _this = _possibleConstructorReturn(this, (DominantSpeakerSignaling.__proto__ || Object.getPrototypeOf(DominantSpeakerSignaling)).call(this, getReceiver, 'active_speaker', options));
 
     Object.defineProperties(_this, {
       _loudestParticipantSid: {
@@ -14772,14 +15120,16 @@ var DominantSpeakerSignaling = function (_EventEmitter) {
       }
     });
 
-    mediaSignalingTransport.on('message', function (message) {
-      switch (message.type) {
-        case 'active_speaker':
-          _this._setLoudestParticipantSid(message.participant);
-          break;
-        default:
-          break;
-      }
+    _this.on('ready', function (transport) {
+      transport.on('message', function (message) {
+        switch (message.type) {
+          case 'active_speaker':
+            _this._setLoudestParticipantSid(message.participant);
+            break;
+          default:
+            break;
+        }
+      });
     });
     return _this;
   }
@@ -14814,14 +15164,14 @@ var DominantSpeakerSignaling = function (_EventEmitter) {
   }]);
 
   return DominantSpeakerSignaling;
-}(EventEmitter);
+}(MediaSignaling);
 
 /**
  * @event DominantSpeakerSignaling#updated
  */
 
 module.exports = DominantSpeakerSignaling;
-},{"events":26}],87:[function(require,module,exports){
+},{"./mediasignaling":92}],87:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -14907,7 +15257,7 @@ var IceBox = function () {
 }();
 
 module.exports = IceBox;
-},{"../../util/filter":143}],88:[function(require,module,exports){
+},{"../../util/filter":145}],88:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -15089,7 +15439,7 @@ var IceConnectionMonitor = function () {
 }();
 
 module.exports = IceConnectionMonitor;
-},{"../../util/constants":138}],89:[function(require,module,exports){
+},{"../../util/constants":140}],89:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -15520,7 +15870,7 @@ var LocalParticipantV2 = function (_LocalParticipantSign) {
  */
 
 module.exports = LocalParticipantV2;
-},{"../../util":144,"../localparticipant":77,"./localtrackpublication":91}],91:[function(require,module,exports){
+},{"../../util":146,"../localparticipant":77,"./localtrackpublication":91}],91:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -15615,7 +15965,116 @@ var LocalTrackPublicationV2 = function (_LocalTrackPublicatio) {
  */
 
 module.exports = LocalTrackPublicationV2;
-},{"../../util/twilio-video-errors":158,"../localtrackpublication":78}],92:[function(require,module,exports){
+},{"../../util/twilio-video-errors":161,"../localtrackpublication":78}],92:[function(require,module,exports){
+/* eslint callback-return:0 */
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var EventEmitter = require('events');
+
+var nInstances = 0;
+
+var MediaSignaling = function (_EventEmitter) {
+  _inherits(MediaSignaling, _EventEmitter);
+
+  /**
+   * Construct a {@link MediaSignaling}.
+   * @param {Promise<DataTrackReceiver>} getReceive
+   * @param {string} channel
+   */
+  function MediaSignaling(getReceiver, channel, options) {
+    _classCallCheck(this, MediaSignaling);
+
+    var _this = _possibleConstructorReturn(this, (MediaSignaling.__proto__ || Object.getPrototypeOf(MediaSignaling)).call(this));
+
+    Object.defineProperties(_this, {
+      _instanceId: {
+        value: nInstances++
+      },
+      channel: {
+        value: channel
+      },
+      _log: {
+        value: options.log.createLog('default', _this)
+      },
+      _getReceiver: {
+        value: getReceiver
+      },
+      _receiverPromise: {
+        value: null,
+        writable: true
+      },
+      _transport: {
+        value: null,
+        writable: true
+      }
+    });
+    return _this;
+  }
+
+  _createClass(MediaSignaling, [{
+    key: 'toString',
+    value: function toString() {
+      return '[MediaSignaling #' + this._instanceId + ':' + this.channel + ']';
+    }
+  }, {
+    key: 'setup',
+    value: function setup(id) {
+      var _this2 = this;
+
+      this._teardown();
+      this._log.info('setting up msp transport for id:', id);
+      var receiverPromise = this._getReceiver(id).then(function (receiver) {
+        if (receiver.kind !== 'data') {
+          _this2._log.error('Expected a DataTrackReceiver');
+          throw new Error('Expected a DataTrackReceiver');
+        }if (_this2._receiverPromise !== receiverPromise) {
+          return;
+        }
+
+        try {
+          _this2._transport = receiver.toDataTransport();
+        } catch (ex) {
+          _this2._log.error('Failed to toDataTransport');
+          throw new Error('Failed to toDataTransport');
+        }
+        _this2.emit('ready', _this2._transport);
+
+        receiver.once('close', function () {
+          return _this2._teardown();
+        });
+      });
+      this._receiverPromise = receiverPromise;
+    }
+  }, {
+    key: '_teardown',
+    value: function _teardown() {
+      if (this._transport) {
+        this._log.info('Tearing down');
+        this._transport = null;
+        this._receiverPromise = null;
+        this.emit('teardown');
+      }
+    }
+  }, {
+    key: 'isSetup',
+    get: function get() {
+      return !!this._receiverPromise;
+    }
+  }]);
+
+  return MediaSignaling;
+}(EventEmitter);
+
+module.exports = MediaSignaling;
+},{"events":26}],93:[function(require,module,exports){
 /* eslint callback-return:0 */
 'use strict';
 
@@ -15793,7 +16252,7 @@ function next(monitor) {
  */
 
 module.exports = NetworkQualityMonitor;
-},{"../../stats/peerconnectionreportfactory":121,"events":26}],93:[function(require,module,exports){
+},{"../../stats/peerconnectionreportfactory":123,"events":26}],94:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -15806,9 +16265,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _require = require('events'),
-    EventEmitter = _require.EventEmitter;
-
+var MediaSignaling = require('./mediasignaling');
 var AsyncVar = require('../../util/asyncvar');
 
 /**
@@ -15880,18 +16337,18 @@ var AsyncVar = require('../../util/asyncvar');
  * @emits NetworkQualitySignaling#updated
  */
 
-var NetworkQualitySignaling = function (_EventEmitter) {
-  _inherits(NetworkQualitySignaling, _EventEmitter);
+var NetworkQualitySignaling = function (_MediaSignaling) {
+  _inherits(NetworkQualitySignaling, _MediaSignaling);
 
   /**
    * Construct a {@link NetworkQualitySignaling}.
-   * @param {MediaSignalingTransport} mediaSignalingTransport
+   * @param {Promise<DataTrackReceiver>} getReceiver
    * @param {NetworkQualityConfigurationImpl} networkQualityConfiguration
    */
-  function NetworkQualitySignaling(mediaSignalingTransport, networkQualityConfiguration) {
+  function NetworkQualitySignaling(getReceiver, networkQualityConfiguration, options) {
     _classCallCheck(this, NetworkQualitySignaling);
 
-    var _this = _possibleConstructorReturn(this, (NetworkQualitySignaling.__proto__ || Object.getPrototypeOf(NetworkQualitySignaling)).call(this));
+    var _this = _possibleConstructorReturn(this, (NetworkQualitySignaling.__proto__ || Object.getPrototypeOf(NetworkQualitySignaling)).call(this, getReceiver, 'network_quality', options));
 
     Object.defineProperties(_this, {
       _level: {
@@ -15906,9 +16363,6 @@ var NetworkQualitySignaling = function (_EventEmitter) {
         value: new Map(),
         writable: true
       },
-      _mediaSignalingTransport: {
-        value: mediaSignalingTransport
-      },
       _networkQualityInputs: {
         value: new AsyncVar()
       },
@@ -15922,14 +16376,16 @@ var NetworkQualitySignaling = function (_EventEmitter) {
       }
     });
 
-    mediaSignalingTransport.on('message', function (message) {
-      switch (message.type) {
-        case 'network_quality':
-          _this._handleNetworkQualityMessage(message);
-          break;
-        default:
-          break;
-      }
+    _this.on('ready', function (transport) {
+      transport.on('message', function (message) {
+        switch (message.type) {
+          case 'network_quality':
+            _this._handleNetworkQualityMessage(message);
+            break;
+          default:
+            break;
+        }
+      });
     });
 
     _this._sendNetworkQualityInputs();
@@ -16002,7 +16458,9 @@ var NetworkQualitySignaling = function (_EventEmitter) {
       var _this3 = this;
 
       return this._networkQualityInputs.take().then(function (networkQualityInputs) {
-        _this3._mediaSignalingTransport.publish(createNetworkQualityInputsMessage(networkQualityInputs, _this3._networkQualityReportLevels));
+        if (_this3._transport) {
+          _this3._transport.publish(createNetworkQualityInputsMessage(networkQualityInputs, _this3._networkQualityReportLevels));
+        }
       });
     }
 
@@ -16048,7 +16506,7 @@ var NetworkQualitySignaling = function (_EventEmitter) {
   }]);
 
   return NetworkQualitySignaling;
-}(EventEmitter);
+}(MediaSignaling);
 
 /**
  * The {@link NetworkQualityLevel} changed.
@@ -16073,7 +16531,7 @@ function createNetworkQualityInputsMessage(networkQualityInputs, networkQualityR
 }
 
 module.exports = NetworkQualitySignaling;
-},{"../../util/asyncvar":136,"events":26}],94:[function(require,module,exports){
+},{"../../util/asyncvar":138,"./mediasignaling":92}],95:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -16129,6 +16587,7 @@ var _require6 = require('../../util/twilio-video-errors'),
 
 var _require7 = require('../../util'),
     buildLogLevels = _require7.buildLogLevels,
+    getPlatform = _require7.getPlatform,
     isChromeScreenShareTrack = _require7.isChromeScreenShareTrack,
     oncePerTick = _require7.oncePerTick;
 
@@ -16144,6 +16603,8 @@ var MIDTrackMatcher = require('../../util/sdp/trackmatcher/mid');
 var workaroundIssue8329 = require('../../util/sdp/issue8329');
 
 var guess = guessBrowser();
+var platform = getPlatform();
+var isAndroid = /android/.test(platform);
 var isChrome = guess === 'chrome';
 var isFirefox = guess === 'firefox';
 var isSafari = guess === 'safari';
@@ -16440,7 +16901,13 @@ var PeerConnectionV2 = function (_StateMachine) {
         value: options.setBitrateParameters
       },
       _setCodecPreferences: {
-        value: options.setCodecPreferences
+        // NOTE(mmalavalli): Re-ordering payload types in order to make sure a non-H264
+        // preferred codec is selected does not work on Android Firefox due to this behavior:
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=1683258. So, we work around this by
+        // not applying any non-H264 preferred video codec.
+        value: isFirefox && isAndroid && preferredCodecs.video[0] && preferredCodecs.video[0].codec.toLowerCase() !== 'h264' ? function (sdp) {
+          return sdp;
+        } : options.setCodecPreferences
       },
       _setSimulcast: {
         value: options.setSimulcast
@@ -16651,6 +17118,7 @@ var PeerConnectionV2 = function (_StateMachine) {
         // We are not referencing those attributes, but this changes goes ahead and removes them to see if it works.
         // this also helps reduce bytes on wires
         var updatedSdp = removeSSRCAttributes(answer.sdp, ['mslabel', 'label']);
+
         if (_this4._shouldApplySimulcast) {
           var sdpWithoutSimulcast = updatedSdp;
           updatedSdp = _this4._setSimulcast(sdpWithoutSimulcast, _this4._sdpFormat, _this4._trackIdsToAttributes);
@@ -17317,11 +17785,11 @@ var PeerConnectionV2 = function (_StateMachine) {
           description.sdp = enableDtxForOpus(description.sdp, []);
         }
 
-        // NOTE(mroberts): Do this to reduce our MediaStream count in Firefox. By
-        // mapping MediaStream IDs in the SDP to "-", we ensure the "track" event
-        // doesn't include any new MediaStreams in Firefox. Its `streams` member
-        // will always be the empty Array.
         if (isFirefox) {
+          // NOTE(mroberts): Do this to reduce our MediaStream count in Firefox. By
+          // mapping MediaStream IDs in the SDP to "-", we ensure the "track" event
+          // doesn't include any new MediaStreams in Firefox. Its `streams` member
+          // will always be the empty Array.
           description.sdp = filterOutMediaStreamIds(description.sdp);
         }
         if (!this._peerConnection.remoteDescription) {
@@ -18032,7 +18500,7 @@ function setMaxBitrate(params, maxBitrate) {
   }
 }
 module.exports = PeerConnectionV2;
-},{"../../data/receiver":35,"../../media/track/receiver":58,"../../statemachine":103,"../../util":144,"../../util/constants":138,"../../util/log":148,"../../util/sdp":150,"../../util/sdp/issue8329":151,"../../util/sdp/trackmatcher/identity":153,"../../util/sdp/trackmatcher/mid":154,"../../util/sdp/trackmatcher/ordered":155,"../../util/timeout":157,"../../util/twilio-video-errors":158,"./icebox":87,"./iceconnectionmonitor.js":88,"@twilio/webrtc":3,"@twilio/webrtc/lib/util":16,"@twilio/webrtc/lib/util/sdp":18,"backoff":20}],95:[function(require,module,exports){
+},{"../../data/receiver":35,"../../media/track/receiver":58,"../../statemachine":105,"../../util":146,"../../util/constants":140,"../../util/log":150,"../../util/sdp":153,"../../util/sdp/issue8329":154,"../../util/sdp/trackmatcher/identity":156,"../../util/sdp/trackmatcher/mid":157,"../../util/sdp/trackmatcher/ordered":158,"../../util/timeout":160,"../../util/twilio-video-errors":161,"./icebox":87,"./iceconnectionmonitor.js":88,"@twilio/webrtc":3,"@twilio/webrtc/lib/util":16,"@twilio/webrtc/lib/util/sdp":18,"backoff":20}],96:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -18673,7 +19141,7 @@ function updateConnectionState(pcm) {
 }
 
 module.exports = PeerConnectionManager;
-},{"../../media/track/sender":67,"../../queueingeventemitter":73,"../../util":144,"../../util/twilio-video-errors":158,"../../webaudio/audiocontext":162,"./peerconnection":94,"@twilio/webrtc/lib/util":16}],96:[function(require,module,exports){
+},{"../../media/track/sender":67,"../../queueingeventemitter":73,"../../util":146,"../../util/twilio-video-errors":161,"../../webaudio/audiocontext":165,"./peerconnection":95,"@twilio/webrtc/lib/util":16}],97:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -18741,7 +19209,7 @@ var RecordingV2 = function (_RecordingSignaling) {
  */
 
 module.exports = RecordingV2;
-},{"../recording":80}],97:[function(require,module,exports){
+},{"../recording":80}],98:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -18766,12 +19234,13 @@ var RemoteParticipantV2 = function (_RemoteParticipantSig) {
   /**
    * Construct a {@link RemoteParticipantV2}.
    * @param {object} participantState
-   * @param {function(string): Promise<DataTrackReceiver|MediaTrackReceiver>} getTrackReceiver
-   * @param {function(string): boolean} getInitialTrackSwitchOffState
-   *
+   * @param {function(Track.SID): boolean} getInitialTrackSwitchOffState
+   * @param {function(Track.SID, Track.Priority): boolean} setPriority
+   * @param {function(Track.SID, ClientRenderHint): Promise<void>} setRenderHint
+   * @param {function(Track.SID): void} clearTrackHint
    * @param {object} [options]
    */
-  function RemoteParticipantV2(participantState, getTrackReceiver, getInitialTrackSwitchOffState, options) {
+  function RemoteParticipantV2(participantState, getInitialTrackSwitchOffState, setPriority, setRenderHint, clearTrackHint, options) {
     var _ret;
 
     _classCallCheck(this, RemoteParticipantV2);
@@ -18790,11 +19259,23 @@ var RemoteParticipantV2 = function (_RemoteParticipantSig) {
       _RemoteTrackPublicationV2: {
         value: options.RemoteTrackPublicationV2
       },
-      _getTrackReceiver: {
-        value: getTrackReceiver
-      },
       _getInitialTrackSwitchOffState: {
         value: getInitialTrackSwitchOffState
+      },
+      updateSubscriberTrackPriority: {
+        value: function value(trackSid, priority) {
+          return setPriority(trackSid, priority);
+        }
+      },
+      updateTrackRenderHint: {
+        value: function value(trackSid, renderHint) {
+          return setRenderHint(trackSid, renderHint);
+        }
+      },
+      clearTrackHint: {
+        value: function value(trackSid) {
+          return clearTrackHint(trackSid);
+        }
       },
       revision: {
         enumerable: true,
@@ -18875,7 +19356,7 @@ var RemoteParticipantV2 = function (_RemoteParticipantSig) {
 }(RemoteParticipantSignaling);
 
 module.exports = RemoteParticipantV2;
-},{"../remoteparticipant":81,"./remotetrackpublication":98}],98:[function(require,module,exports){
+},{"../remoteparticipant":81,"./remotetrackpublication":99}],99:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -18936,7 +19417,161 @@ var RemoteTrackPublicationV2 = function (_RemoteTrackPublicati) {
  */
 
 module.exports = RemoteTrackPublicationV2;
-},{"../remotetrackpublication":82}],99:[function(require,module,exports){
+},{"../remotetrackpublication":82}],100:[function(require,module,exports){
+/* eslint callback-return:0 */
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var MediaSignaling = require('./mediasignaling');
+
+var _require = require('../../util'),
+    isDeepEqual = _require.isDeepEqual;
+
+var messageId = 1;
+
+var RenderHintsSignaling = function (_MediaSignaling) {
+  _inherits(RenderHintsSignaling, _MediaSignaling);
+
+  /**
+   * Construct a {@link RenderHintsSignaling}.
+   */
+  function RenderHintsSignaling(getReceiver, options) {
+    _classCallCheck(this, RenderHintsSignaling);
+
+    var _this = _possibleConstructorReturn(this, (RenderHintsSignaling.__proto__ || Object.getPrototypeOf(RenderHintsSignaling)).call(this, getReceiver, 'render_hints', options));
+
+    Object.defineProperties(_this, {
+      _trackSidsToRenderHints: {
+        value: new Map()
+      },
+      _dirtyTrackSids: {
+        value: new Set()
+      },
+      _isResponsePending: {
+        value: false,
+        writable: true
+      }
+    });
+
+    _this.on('ready', function (transport) {
+      transport.on('message', function (message) {
+        _this._log.debug('Incoming: ', message);
+        switch (message.type) {
+          case 'render_hints':
+            _this._processHintResults(message && message.subscriber && message.subscriber.hints || []);
+            break;
+          default:
+            _this._log.warn('Unknown message type: ', message.type);
+            break;
+        }
+      });
+
+      // NOTE(mpatwardhan): When transport is set (either 1st time of after vms failover)
+      // resend all track states. For this simply mark all tracks as dirty.
+      Array.from(_this._trackSidsToRenderHints.keys()).forEach(function (trackSid) {
+        return _this._dirtyTrackSids.add(trackSid);
+      });
+      _this._sendHints();
+    });
+    return _this;
+  }
+
+  _createClass(RenderHintsSignaling, [{
+    key: '_processHintResults',
+    value: function _processHintResults(hintResults) {
+      var _this2 = this;
+
+      this._isResponsePending = false;
+      hintResults.forEach(function (hintResult) {
+        if (hintResult.result !== 'OK') {
+          _this2._log.debug('Server error processing hint:', hintResult);
+        }
+      });
+      this._sendHints();
+    }
+  }, {
+    key: '_sendHints',
+    value: function _sendHints() {
+      var _this3 = this;
+
+      if (!this._transport || this._isResponsePending || this._dirtyTrackSids.size === 0) {
+        return;
+      }
+
+      var hints = [];
+      Array.from(this._dirtyTrackSids).forEach(function (trackSid) {
+        var mspHint = _this3._trackSidsToRenderHints.get(trackSid);
+        hints.push(mspHint);
+        _this3._dirtyTrackSids.delete(trackSid);
+      });
+
+      var payLoad = {
+        type: 'render_hints',
+        subscriber: {
+          id: messageId++,
+          hints: hints
+        }
+      };
+      this._log.debug('Outgoing: ', payLoad);
+      this._transport.publish(payLoad);
+      this._isResponsePending = true;
+    }
+
+    /**
+     * @param {Track.SID} trackSid
+     * @param {ClientRenderHint} renderHint
+     */
+
+  }, {
+    key: 'setTrackHint',
+    value: function setTrackHint(trackSid, renderHint) {
+      // convert hint to msp format
+      var mspHint = {
+        'track': trackSid
+      };
+
+      if ('enabled' in renderHint) {
+        mspHint.enabled = !!renderHint.enabled;
+      }
+
+      if (renderHint.renderDimensions) {
+        // eslint-disable-next-line camelcase
+        mspHint.render_dimensions = renderHint.renderDimensions;
+      }
+
+      var oldHint = this._trackSidsToRenderHints.get(trackSid);
+      if (!isDeepEqual(oldHint, mspHint)) {
+        this._trackSidsToRenderHints.set(trackSid, mspHint);
+        this._dirtyTrackSids.add(trackSid);
+        this._sendHints();
+      }
+    }
+
+    /**
+     * must be called when track is unsubscribed.
+     * @param {Track.SID} trackSid
+     */
+
+  }, {
+    key: 'clearTrackHint',
+    value: function clearTrackHint(trackSid) {
+      this._trackSidsToRenderHints.delete(trackSid);
+      this._dirtyTrackSids.delete(trackSid);
+    }
+  }]);
+
+  return RenderHintsSignaling;
+}(MediaSignaling);
+
+module.exports = RenderHintsSignaling;
+},{"../../util":146,"./mediasignaling":92}],101:[function(require,module,exports){
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -18944,8 +19579,6 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -18962,6 +19595,7 @@ var RemoteParticipantV2 = require('./remoteparticipant');
 var StatsReport = require('../../stats/statsreport');
 var TrackPrioritySignaling = require('./trackprioritysignaling');
 var TrackSwitchOffSignaling = require('./trackswitchoffsignaling');
+var RenderHintsSignaling = require('./renderhintssignaling');
 
 var _require = require('../../util'),
     DEFAULT_SESSION_TIMEOUT_SEC = _require.constants.DEFAULT_SESSION_TIMEOUT_SEC,
@@ -19008,36 +19642,23 @@ var RoomV2 = function (_RoomSignaling) {
 
     var _this = _possibleConstructorReturn(this, (RoomV2.__proto__ || Object.getPrototypeOf(RoomV2)).call(this, localParticipant, initialState.sid, initialState.name, options));
 
+    var getTrackReceiver = function getTrackReceiver(id) {
+      return _this._getTrackReceiver(id);
+    };
+    var log = _this._log;
+
     Object.defineProperties(_this, {
-      _dominantSpeakerSignaling: {
-        value: null,
-        writable: true
-      },
-      _DominantSpeakerSignaling: {
-        value: options.DominantSpeakerSignaling
-      },
-      _dominantSpeakerSignalingPromise: {
-        value: null,
-        writable: true
-      },
       _disconnectedParticipantRevisions: {
         value: new Map()
       },
       _NetworkQualityMonitor: {
         value: options.NetworkQualityMonitor
       },
-      _NetworkQualitySignaling: {
-        value: options.NetworkQualitySignaling
-      },
       _lastBandwidthProfileRevision: {
         value: localParticipant.bandwidthProfileRevision,
         writable: true
       },
       _networkQualityMonitor: {
-        value: null,
-        writable: true
-      },
-      _networkQualityMonitorPromise: {
         value: null,
         writable: true
       },
@@ -19067,27 +19688,20 @@ var RoomV2 = function (_RoomSignaling) {
       _subscriptionFailures: {
         value: new Map()
       },
-      _trackPriorityPromise: {
-        value: null,
-        writable: true
+      _dominantSpeakerSignaling: {
+        value: new options.DominantSpeakerSignaling(getTrackReceiver, { log: log })
+      },
+      _networkQualitySignaling: {
+        value: new options.NetworkQualitySignaling(getTrackReceiver, localParticipant.networkQualityConfiguration, { log: log })
+      },
+      _renderHintsSignaling: {
+        value: new RenderHintsSignaling(getTrackReceiver, { log: log })
       },
       _trackPrioritySignaling: {
-        value: null,
-        writable: true
-      },
-      _trackSwitchOffPromise: {
-        value: null,
-        writable: true
+        value: new options.TrackPrioritySignaling(getTrackReceiver, { log: log })
       },
       _trackSwitchOffSignaling: {
-        value: null,
-        writable: true
-      },
-      _TrackPrioritySignaling: {
-        value: options.TrackPrioritySignaling
-      },
-      _TrackSwitchOffSignaling: {
-        value: options.TrackSwitchOffSignaling
+        value: new options.TrackSwitchOffSignaling(getTrackReceiver, { log: log })
       },
       _pendingSwitchOffStates: {
         value: new Map()
@@ -19103,6 +19717,10 @@ var RoomV2 = function (_RoomSignaling) {
         value: initialState.options.media_region || null
       }
     });
+
+    _this._initTrackSwitchOffSignaling();
+    _this._initDominantSpeakerSignaling();
+    _this._initNetworkQualityMonitorSignaling();
 
     handleLocalParticipantEvents(_this, localParticipant);
     handlePeerConnectionEvents(_this, peerConnectionManager);
@@ -19180,7 +19798,6 @@ var RoomV2 = function (_RoomSignaling) {
     value: function _disconnect(error) {
       var didDisconnect = _get(RoomV2.prototype.__proto__ || Object.getPrototypeOf(RoomV2.prototype), '_disconnect', this).call(this, error);
       if (didDisconnect) {
-        this._teardownDominantSpeakerSignaling();
         this._teardownNetworkQualityMonitor();
         this._transport.disconnect();
         this._peerConnectionManager.close();
@@ -19243,11 +19860,21 @@ var RoomV2 = function (_RoomSignaling) {
   }, {
     key: '_getOrCreateRemoteParticipant',
     value: function _getOrCreateRemoteParticipant(participantState) {
+      var _this3 = this;
+
       var RemoteParticipantV2 = this._RemoteParticipantV2;
       var participant = this.participants.get(participantState.sid);
       var self = this;
       if (!participant) {
-        participant = new RemoteParticipantV2(participantState, this._getTrackReceiver.bind(this), this._getInitialTrackSwitchOffState.bind(this));
+        participant = new RemoteParticipantV2(participantState, function (trackSid) {
+          return _this3._getInitialTrackSwitchOffState(trackSid);
+        }, function (trackSid, priority) {
+          return _this3._trackPrioritySignaling.sendTrackPriorityUpdate(trackSid, 'subscribe', priority);
+        }, function (trackSid, hint) {
+          return _this3._renderHintsSignaling.setTrackHint(trackSid, hint);
+        }, function (trackSid) {
+          return _this3._renderHintsSignaling.clearTrackHint(trackSid);
+        });
         participant.on('stateChanged', function stateChanged(state) {
           if (state === 'disconnected') {
             participant.removeListener('stateChanged', stateChanged);
@@ -19256,7 +19883,6 @@ var RoomV2 = function (_RoomSignaling) {
           }
         });
         this.connectParticipant(participant);
-        participant.setTrackPrioritySignaling(this._trackPrioritySignaling);
       }
       return participant;
     }
@@ -19322,16 +19948,16 @@ var RoomV2 = function (_RoomSignaling) {
   }, {
     key: '_update',
     value: function _update(roomState) {
-      var _this3 = this;
+      var _this4 = this;
 
       if (roomState.subscribed && roomState.subscribed.revision > this._subscribedRevision) {
         this._subscribedRevision = roomState.subscribed.revision;
         roomState.subscribed.tracks.forEach(function (trackState) {
           if (trackState.id) {
-            _this3._subscriptionFailures.delete(trackState.sid);
-            _this3._subscribed.set(trackState.sid, trackState.id);
-          } else if (trackState.error && !_this3._subscriptionFailures.has(trackState.sid)) {
-            _this3._subscriptionFailures.set(trackState.sid, trackState.error);
+            _this4._subscriptionFailures.delete(trackState.sid);
+            _this4._subscribed.set(trackState.sid, trackState.id);
+          } else if (trackState.error && !_this4._subscriptionFailures.has(trackState.sid)) {
+            _this4._subscriptionFailures.set(trackState.sid, trackState.error);
           }
         });
 
@@ -19343,7 +19969,7 @@ var RoomV2 = function (_RoomSignaling) {
 
         this._subscribed.forEach(function (trackId, trackSid) {
           if (!subscribedTrackSids.has(trackSid)) {
-            _this3._subscribed.delete(trackSid);
+            _this4._subscribed.delete(trackSid);
           }
         });
       }
@@ -19353,7 +19979,7 @@ var RoomV2 = function (_RoomSignaling) {
       // eslint-disable-next-line no-warning-comments
       // TODO(mroberts): Remove me once the Server is fixed.
       (roomState.participants || []).forEach(function (participantState) {
-        if (participantState.sid === _this3.localParticipant.sid) {
+        if (participantState.sid === _this4.localParticipant.sid) {
           return;
         }
 
@@ -19361,15 +19987,15 @@ var RoomV2 = function (_RoomSignaling) {
         // equal to the revision when it was disconnected, then the state is old and can be ignored.
         // Otherwise, the Participant was most likely disconnected in a Large Group Room when it
         // stopped publishing media, and hence needs to be re-added.
-        var disconnectedParticipantRevision = _this3._disconnectedParticipantRevisions.get(participantState.sid);
+        var disconnectedParticipantRevision = _this4._disconnectedParticipantRevisions.get(participantState.sid);
         if (disconnectedParticipantRevision && participantState.revision <= disconnectedParticipantRevision) {
           return;
         }
 
         if (disconnectedParticipantRevision) {
-          _this3._disconnectedParticipantRevisions.delete(participantState.sid);
+          _this4._disconnectedParticipantRevisions.delete(participantState.sid);
         }
-        var participant = _this3._getOrCreateRemoteParticipant(participantState);
+        var participant = _this4._getOrCreateRemoteParticipant(participantState);
         participant.update(participantState);
         participantsToKeep.add(participant);
       });
@@ -19399,7 +20025,7 @@ var RoomV2 = function (_RoomSignaling) {
         this._publishedRevision = roomState.published.revision;
         roomState.published.tracks.forEach(function (track) {
           if (track.sid) {
-            _this3._published.set(track.id, track.sid);
+            _this4._published.set(track.id, track.sid);
           }
         });
         this.localParticipant.update(roomState.published);
@@ -19409,64 +20035,23 @@ var RoomV2 = function (_RoomSignaling) {
         this.localParticipant.connect(roomState.participant.sid, roomState.participant.identity);
       }
 
-      if (!this._dominantSpeakerSignalingPromise && roomState.media_signaling && roomState.media_signaling.active_speaker && roomState.media_signaling.active_speaker.transport && roomState.media_signaling.active_speaker.transport.type === 'data-channel') {
-        this._setupDataTransportBackedDominantSpeakerSignaling(roomState.media_signaling.active_speaker.transport.label);
-      }
-
-      if (!this._networkQualityMonitorPromise && roomState.media_signaling && roomState.media_signaling.network_quality && roomState.media_signaling.network_quality.transport && roomState.media_signaling.network_quality.transport.type === 'data-channel') {
-        this._setupDataTransportBackedNetworkQualityMonitor(roomState.media_signaling.network_quality.transport.label);
-      }
-
-      if (!this._trackPriorityPromise && roomState.media_signaling && roomState.media_signaling.track_priority && roomState.media_signaling.track_priority.transport && roomState.media_signaling.track_priority.transport.type === 'data-channel') {
-        this._setupTrackPrioritySignaling(roomState.media_signaling.track_priority.transport.label);
-      }
-
-      if (!this._trackSwitchOffPromise && roomState.media_signaling && roomState.media_signaling.track_switch_off && roomState.media_signaling.track_switch_off.transport && roomState.media_signaling.track_switch_off.transport.type === 'data-channel') {
-        this._setupTrackSwitchOffMonitor(roomState.media_signaling.track_switch_off.transport.label);
-      }
+      [this._dominantSpeakerSignaling, this._networkQualitySignaling, this._trackPrioritySignaling, this._trackSwitchOffSignaling, this._renderHintsSignaling].forEach(function (mediaSignaling) {
+        var channel = mediaSignaling.channel;
+        if (!mediaSignaling.isSetup && roomState.media_signaling && roomState.media_signaling[channel] && roomState.media_signaling[channel].transport && roomState.media_signaling[channel].transport.type === 'data-channel') {
+          mediaSignaling.setup(roomState.media_signaling[channel].transport.label);
+        }
+      });
 
       return this;
     }
-
-    // track priority signaling MSP is now used only for subscribe side priority changes.
-    // publisher side priority changes and notifications are handled by RSP.
-
   }, {
-    key: '_setupTrackPrioritySignaling',
-    value: function _setupTrackPrioritySignaling(id) {
-      var _this4 = this;
-
-      this._teardownTrackPrioritySignaling();
-      var trackPriorityPromise = this._getTrackReceiver(id).then(function (receiver) {
-        if (receiver.kind !== 'data') {
-          throw new Error('Expected a DataTrackReceiver');
-        }if (_this4._trackPriorityPromise !== trackPriorityPromise) {
-          return;
-        }
-
-        // NOTE(mmalavalli): The underlying RTCDataChannel is closed whenever
-        // the VMS instance fails over, and a new RTCDataChannel is created in order
-        // to resume sending Track Priority updates.
-        receiver.once('close', function () {
-          return _this4._teardownTrackPrioritySignaling();
-        });
-
-        _this4._trackPrioritySignaling = new _this4._TrackPrioritySignaling(receiver.toDataTransport());
-        [].concat(_toConsumableArray(_this4.participants.values())).forEach(function (participant) {
-          participant.setTrackPrioritySignaling(_this4._trackPrioritySignaling);
-        });
-      });
-      this._trackPriorityPromise = trackPriorityPromise;
-    }
-  }, {
-    key: '_setupTrackSwitchOff',
-    value: function _setupTrackSwitchOff(trackSwitchOffSignaling) {
+    key: '_initTrackSwitchOffSignaling',
+    value: function _initTrackSwitchOffSignaling() {
       var _this5 = this;
 
-      this._trackSwitchOffSignaling = trackSwitchOffSignaling;
-      trackSwitchOffSignaling.on('updated', function (tracksOff, tracksOn) {
+      this._trackSwitchOffSignaling.on('updated', function (tracksOff, tracksOn) {
         try {
-          _this5._log.warn('trackSwitchOff: On: ', tracksOn, ' Off: ', tracksOff);
+          _this5._log.debug('received trackSwitch: ', { tracksOn: tracksOn, tracksOff: tracksOff });
           var trackUpdates = new Map();
           tracksOn.forEach(function (trackSid) {
             return trackUpdates.set(trackSid, true);
@@ -19487,7 +20072,6 @@ var RoomV2 = function (_RoomSignaling) {
               }
             });
           });
-
           // NOTE(mpatwardhan): Cache any notification about the tracks that we do not yet know about.
           trackUpdates.forEach(function (isOn, trackSid) {
             return _this5._pendingSwitchOffStates.set(trackSid, !isOn);
@@ -19498,163 +20082,47 @@ var RoomV2 = function (_RoomSignaling) {
       });
     }
   }, {
-    key: '_setupTrackSwitchOffMonitor',
-    value: function _setupTrackSwitchOffMonitor(id) {
+    key: '_initDominantSpeakerSignaling',
+    value: function _initDominantSpeakerSignaling() {
       var _this6 = this;
 
-      this._teardownTrackSwitchOff();
-      var trackSwitchOffPromise = this._getTrackReceiver(id).then(function (receiver) {
-        if (receiver.kind !== 'data') {
-          throw new Error('Expected a DataTrackReceiver');
-        }if (_this6._trackSwitchOffPromise !== trackSwitchOffPromise) {
-          return;
-        }
-
-        // NOTE(mpatwardhan): The underlying RTCDataChannel is closed whenever
-        // the VMS instance fails over, and a new RTCDataChannel is created in order
-        // to resume sending Dominant Speaker updates.
-        receiver.once('close', function () {
-          return _this6._teardownTrackSwitchOff();
-        });
-
-        var trackSwitchOffSignaling = new _this6._TrackSwitchOffSignaling(receiver.toDataTransport());
-        _this6._setupTrackSwitchOff(trackSwitchOffSignaling);
+      this._dominantSpeakerSignaling.on('updated', function () {
+        return _this6.setDominantSpeaker(_this6._dominantSpeakerSignaling.loudestParticipantSid);
       });
-      this._trackSwitchOffPromise = trackSwitchOffPromise;
     }
-
-    /**
-     * Create a {@link DataTransport}-backed {@link DominantSpeakerSignaling}.
-     * @private
-     * @param {ID} id - ID of the {@link DataTrackReceiver} that will ultimately
-     *   be converted into a {@link DataTrackTransport} for use with
-     *   {@link DominantSpeakerSignaling}
-     * @returns {Promise<void>}
-     */
-
   }, {
-    key: '_setupDataTransportBackedDominantSpeakerSignaling',
-    value: function _setupDataTransportBackedDominantSpeakerSignaling(id) {
+    key: '_initNetworkQualityMonitorSignaling',
+    value: function _initNetworkQualityMonitorSignaling() {
       var _this7 = this;
 
-      this._teardownDominantSpeakerSignaling();
-      var dominantSpeakerSignalingPromise = this._getTrackReceiver(id).then(function (receiver) {
-        if (receiver.kind !== 'data') {
-          throw new Error('Expected a DataTrackReceiver');
-        }if (_this7._dominantSpeakerSignalingPromise !== dominantSpeakerSignalingPromise) {
-          // NOTE(mroberts): _teardownDominantSpeakerSignaling was called.
-          return;
-        }
-
-        // NOTE(mpatwardhan): The underlying RTCDataChannel is closed whenever
-        // the VMS instance fails over, and a new RTCDataChannel is created in order
-        // to resume sending Dominant Speaker updates.
-        receiver.once('close', function () {
-          return _this7._teardownDominantSpeakerSignaling();
-        });
-
-        var dominantSpeakerSignaling = new _this7._DominantSpeakerSignaling(receiver.toDataTransport());
-        _this7._setDominantSpeakerSignaling(dominantSpeakerSignaling);
-      });
-      this._dominantSpeakerSignalingPromise = dominantSpeakerSignalingPromise;
-    }
-    /**
-     * Create a {@link DataTransport}-backed {@link NetworkQualityMonitor}.
-     * @private
-     * @param {ID} id - ID of the {@link DataTrackReceiver} that will ultimately
-     *   be converted into a {@link DataTrackTransport} for use with
-     *   {@link NetworkQualitySignaling}
-     * @returns {Promise<void>}
-     */
-
-  }, {
-    key: '_setupDataTransportBackedNetworkQualityMonitor',
-    value: function _setupDataTransportBackedNetworkQualityMonitor(id) {
-      var _this8 = this;
-
-      var self = this;
-      this._teardownNetworkQualityMonitor();
-      var networkQualityMonitorPromise = this._getTrackReceiver(id).then(function (receiver) {
-        if (receiver.kind !== 'data') {
-          throw new Error('Expected a DataTrackReceiver');
-        }if (_this8._networkQualityMonitorPromise !== networkQualityMonitorPromise) {
-          // NOTE(mroberts): _teardownNetworkQualityMonitor was called.
-          return;
-        }
-
-        // NOTE(mpatwardhan): The underlying RTCDataChannel is closed whenever
-        // the VMS instance fails over, and new a RTCDataChannel is created in order
-        // to resume exchanging Network Quality messages.
-        receiver.once('close', function () {
-          return _this8._teardownNetworkQualityMonitor();
-        });
-
-        var networkQualitySignaling = new _this8._NetworkQualitySignaling(receiver.toDataTransport(), self._networkQualityConfiguration);
-        var networkQualityMonitor = new _this8._NetworkQualityMonitor(_this8._peerConnectionManager, networkQualitySignaling);
-        _this8._setNetworkQualityMonitor(networkQualityMonitor);
-      });
-      this._networkQualityMonitorPromise = networkQualityMonitorPromise;
-    }
-  }, {
-    key: '_setDominantSpeakerSignaling',
-    value: function _setDominantSpeakerSignaling(dominantSpeakerSignaling) {
-      var _this9 = this;
-
-      this._dominantSpeakerSignaling = dominantSpeakerSignaling;
-      dominantSpeakerSignaling.on('updated', function () {
-        return _this9.setDominantSpeaker(dominantSpeakerSignaling.loudestParticipantSid);
-      });
-    }
-  }, {
-    key: '_setNetworkQualityMonitor',
-    value: function _setNetworkQualityMonitor(networkQualityMonitor) {
-      var _this10 = this;
-
-      this._networkQualityMonitor = networkQualityMonitor;
-      networkQualityMonitor.on('updated', function () {
-        if (_this10.iceConnectionState === 'failed') {
-          return;
-        }
-        _this10.localParticipant.setNetworkQualityLevel(networkQualityMonitor.level, networkQualityMonitor.levels);
-        _this10.participants.forEach(function (participant) {
-          var levels = networkQualityMonitor.remoteLevels.get(participant.sid);
-          if (levels) {
-            participant.setNetworkQualityLevel(levels.level, levels);
+      this._networkQualitySignaling.on('ready', function () {
+        var networkQualityMonitor = new _this7._NetworkQualityMonitor(_this7._peerConnectionManager, _this7._networkQualitySignaling);
+        _this7._networkQualityMonitor = networkQualityMonitor;
+        networkQualityMonitor.on('updated', function () {
+          if (_this7.iceConnectionState === 'failed') {
+            return;
           }
+          _this7.localParticipant.setNetworkQualityLevel(networkQualityMonitor.level, networkQualityMonitor.levels);
+          _this7.participants.forEach(function (participant) {
+            var levels = networkQualityMonitor.remoteLevels.get(participant.sid);
+            if (levels) {
+              participant.setNetworkQualityLevel(levels.level, levels);
+            }
+          });
         });
+        networkQualityMonitor.start();
       });
-      networkQualityMonitor.start();
-    }
-  }, {
-    key: '_teardownDominantSpeakerSignaling',
-    value: function _teardownDominantSpeakerSignaling() {
-      this._dominantSpeakerSignalingPromise = null;
-      this._dominantSpeakerSignaling = null;
+      this._networkQualitySignaling.on('teardown', function () {
+        return _this7._teardownNetworkQualityMonitor();
+      });
     }
   }, {
     key: '_teardownNetworkQualityMonitor',
     value: function _teardownNetworkQualityMonitor() {
-      this._networkQualityMonitorPromise = null;
       if (this._networkQualityMonitor) {
         this._networkQualityMonitor.stop();
         this._networkQualityMonitor = null;
       }
-    }
-  }, {
-    key: '_teardownTrackPrioritySignaling',
-    value: function _teardownTrackPrioritySignaling() {
-      this._trackPrioritySignaling = null;
-      this._trackPriorityPromise = null;
-      this.localParticipant.setTrackPrioritySignaling(null);
-      this.participants.forEach(function (participant) {
-        participant.setTrackPrioritySignaling(null);
-      });
-    }
-  }, {
-    key: '_teardownTrackSwitchOff',
-    value: function _teardownTrackSwitchOff() {
-      this._trackSwitchOffSignaling = null;
-      this._trackSwitchOffPromise = null;
     }
 
     /**
@@ -19665,7 +20133,7 @@ var RoomV2 = function (_RoomSignaling) {
   }, {
     key: 'getStats',
     value: function getStats() {
-      var _this11 = this;
+      var _this8 = this;
 
       return this._peerConnectionManager.getStats().then(function (responses) {
         return new Map(Array.from(responses).map(function (_ref) {
@@ -19674,10 +20142,10 @@ var RoomV2 = function (_RoomSignaling) {
               response = _ref2[1];
 
           return [id, Object.assign({}, response, {
-            localAudioTrackStats: filterAndAddLocalTrackSids(_this11, response.localAudioTrackStats),
-            localVideoTrackStats: filterAndAddLocalTrackSids(_this11, response.localVideoTrackStats),
-            remoteAudioTrackStats: filterAndAddRemoteTrackSids(_this11, response.remoteAudioTrackStats),
-            remoteVideoTrackStats: filterAndAddRemoteTrackSids(_this11, response.remoteVideoTrackStats)
+            localAudioTrackStats: filterAndAddLocalTrackSids(_this8, response.localAudioTrackStats),
+            localVideoTrackStats: filterAndAddLocalTrackSids(_this8, response.localVideoTrackStats),
+            remoteAudioTrackStats: filterAndAddRemoteTrackSids(_this8, response.remoteAudioTrackStats),
+            remoteVideoTrackStats: filterAndAddRemoteTrackSids(_this8, response.remoteVideoTrackStats)
           })];
         }));
       });
@@ -19964,7 +20432,6 @@ function replaceNullsWithDefaults(activeIceCandidatePair, peerConnectionId) {
     port: 0,
     priority: 0,
     protocol: 'udp',
-    relayProtocol: 'udp',
     url: ''
   }, filterObject(activeIceCandidatePair.localCandidate || {}, null));
 
@@ -19981,28 +20448,49 @@ function replaceNullsWithDefaults(activeIceCandidatePair, peerConnectionId) {
 }
 
 module.exports = RoomV2;
-},{"../../stats/statsreport":131,"../../util":144,"../../util/twilio-video-errors":158,"../room":83,"./dominantspeakersignaling":86,"./networkqualitymonitor":92,"./networkqualitysignaling":93,"./recording":96,"./remoteparticipant":97,"./trackprioritysignaling":100,"./trackswitchoffsignaling":101}],100:[function(require,module,exports){
+},{"../../stats/statsreport":133,"../../util":146,"../../util/twilio-video-errors":161,"../room":83,"./dominantspeakersignaling":86,"./networkqualitymonitor":93,"./networkqualitysignaling":94,"./recording":97,"./remoteparticipant":98,"./renderhintssignaling":100,"./trackprioritysignaling":102,"./trackswitchoffsignaling":103}],102:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var TrackPrioritySignaling = function () {
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var MediaSignaling = require('./mediasignaling');
+
+var TrackPrioritySignaling = function (_MediaSignaling) {
+  _inherits(TrackPrioritySignaling, _MediaSignaling);
+
   /**
    * Construct a {@link TrackPrioritySignaling}.
-   * @param {MediaSignalingTransport} mediaSignalingTransport
+   * @param {Promise<DataTrackReceiver>} getReceiver
    */
-  function TrackPrioritySignaling(mediaSignalingTransport) {
+  function TrackPrioritySignaling(getReceiver, options) {
     _classCallCheck(this, TrackPrioritySignaling);
 
-    Object.defineProperties(this, {
-      _mediaSignalingTransport: {
-        value: mediaSignalingTransport
+    var _this = _possibleConstructorReturn(this, (TrackPrioritySignaling.__proto__ || Object.getPrototypeOf(TrackPrioritySignaling)).call(this, getReceiver, 'track_priority', options));
+
+    Object.defineProperties(_this, {
+      _enqueuedPriorityUpdates: {
+        value: new Map()
       }
     });
+
+    _this.on('ready', function (transport) {
+      Array.from(_this._enqueuedPriorityUpdates.keys()).forEach(function (trackSid) {
+        transport.publish({
+          type: 'track_priority',
+          track: trackSid,
+          subscribe: _this._enqueuedPriorityUpdates.get(trackSid)
+        });
+        // NOTE(mpatwardhan)- we do not clear _enqueuedPriorityUpdates intentionally,
+        // this cache will is used to re-send the priorities in case of VMS-FailOver.
+      });
+    });
+    return _this;
   }
 
   /**
@@ -20015,18 +20503,25 @@ var TrackPrioritySignaling = function () {
   _createClass(TrackPrioritySignaling, [{
     key: 'sendTrackPriorityUpdate',
     value: function sendTrackPriorityUpdate(trackSid, publishOrSubscribe, priority) {
-      this._mediaSignalingTransport.publish(_defineProperty({
-        type: 'track_priority',
-        track: trackSid
-      }, publishOrSubscribe, priority));
+      if (publishOrSubscribe !== 'subscribe') {
+        throw new Error('only subscribe priorities are supported, found: ' + publishOrSubscribe);
+      }
+      this._enqueuedPriorityUpdates.set(trackSid, priority);
+      if (this._transport) {
+        this._transport.publish({
+          type: 'track_priority',
+          track: trackSid,
+          subscribe: priority
+        });
+      }
     }
   }]);
 
   return TrackPrioritySignaling;
-}();
+}(MediaSignaling);
 
 module.exports = TrackPrioritySignaling;
-},{}],101:[function(require,module,exports){
+},{"./mediasignaling":92}],103:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -20037,34 +20532,34 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _require = require('events'),
-    EventEmitter = _require.EventEmitter;
+var MediaSignaling = require('./mediasignaling');
 
 /**
  * @emits TrackSwitchOffSignalinging#updated
  */
 
-
-var TrackSwitchOffSignaling = function (_EventEmitter) {
-  _inherits(TrackSwitchOffSignaling, _EventEmitter);
+var TrackSwitchOffSignaling = function (_MediaSignaling) {
+  _inherits(TrackSwitchOffSignaling, _MediaSignaling);
 
   /**
    * Construct a {@link TrackSwitchOffSignaling}.
-   * @param {MediaSignalingTransport} mediaSignalingTransport
+   * @param {Promise<DataTrackReceiver>} getReceiver
    */
-  function TrackSwitchOffSignaling(mediaSignalingTransport) {
+  function TrackSwitchOffSignaling(getReceiver, options) {
     _classCallCheck(this, TrackSwitchOffSignaling);
 
-    var _this = _possibleConstructorReturn(this, (TrackSwitchOffSignaling.__proto__ || Object.getPrototypeOf(TrackSwitchOffSignaling)).call(this));
+    var _this = _possibleConstructorReturn(this, (TrackSwitchOffSignaling.__proto__ || Object.getPrototypeOf(TrackSwitchOffSignaling)).call(this, getReceiver, 'track_switch_off', options));
 
-    mediaSignalingTransport.on('message', function (message) {
-      switch (message.type) {
-        case 'track_switch_off':
-          _this._setTrackSwitchOffUpdates(message.off || [], message.on || []);
-          break;
-        default:
-          break;
-      }
+    _this.on('ready', function (transport) {
+      transport.on('message', function (message) {
+        switch (message.type) {
+          case 'track_switch_off':
+            _this._setTrackSwitchOffUpdates(message.off || [], message.on || []);
+            break;
+          default:
+            break;
+        }
+      });
     });
     return _this;
   }
@@ -20085,14 +20580,14 @@ var TrackSwitchOffSignaling = function (_EventEmitter) {
   }]);
 
   return TrackSwitchOffSignaling;
-}(EventEmitter);
+}(MediaSignaling);
 
 /**
  * @event TrackSwitchOffSignaling#updated
  */
 
 module.exports = TrackSwitchOffSignaling;
-},{"events":26}],102:[function(require,module,exports){
+},{"./mediasignaling":92}],104:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -20199,6 +20694,7 @@ var TwilioConnectionTransport = function (_StateMachine) {
       sdpFormat: getSdpFormat(options.sdpSemantics),
       trackPriority: true,
       trackSwitchOff: true,
+      renderHints: true,
       userAgent: getUserAgent()
     }, options);
 
@@ -20222,6 +20718,9 @@ var TwilioConnectionTransport = function (_StateMachine) {
       },
       _dominantSpeaker: {
         value: options.dominantSpeaker
+      },
+      _renderHints: {
+        value: options.renderHints
       },
       _eventPublisher: {
         value: new EventPublisher(accessToken, SDK_NAME, SDK_VERSION, options.environment, options.realm, eventPublisherOptions)
@@ -20346,7 +20845,7 @@ var TwilioConnectionTransport = function (_StateMachine) {
           message.bandwidth_profile = createBandwidthProfilePayload(this._bandwidthProfile);
         }
 
-        message.media_signaling = createMediaSignalingPayload(this._dominantSpeaker, this._networkQuality, this._trackPriority, this._trackSwitchOff);
+        message.media_signaling = createMediaSignalingPayload(this._dominantSpeaker, this._networkQuality, this._trackPriority, this._trackSwitchOff, this._renderHints);
 
         message.subscribe = createSubscribePayload(this._automaticSubscription);
 
@@ -20770,7 +21269,7 @@ function setupTransport(transport) {
 }
 
 module.exports = TwilioConnectionTransport;
-},{"../../../package.json":165,"../../statemachine":103,"../../twilioconnection":135,"../../util":144,"../../util/constants":138,"../../util/insightspublisher":145,"../../util/insightspublisher/null":146,"../../util/timeout":157,"../../util/twilio-video-errors":158,"@twilio/webrtc/lib/util/sdp":18,"backoff":20}],103:[function(require,module,exports){
+},{"../../../package.json":168,"../../statemachine":105,"../../twilioconnection":137,"../../util":146,"../../util/constants":140,"../../util/insightspublisher":147,"../../util/insightspublisher/null":148,"../../util/timeout":160,"../../util/twilio-video-errors":161,"@twilio/webrtc/lib/util/sdp":18,"backoff":20}],105:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -21272,7 +21771,7 @@ function createUnreachableError(here, there) {
 }
 
 module.exports = StateMachine;
-},{"./util":144,"events":26}],104:[function(require,module,exports){
+},{"./util":146,"events":26}],106:[function(require,module,exports){
 /* eslint no-undefined:0 */
 'use strict';
 
@@ -21291,7 +21790,7 @@ function average(xs) {
 }
 
 module.exports = average;
-},{}],105:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 'use strict';
 
 /**
@@ -21362,7 +21861,7 @@ var IceReport = function () {
 }();
 
 module.exports = IceReport;
-},{}],106:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -21421,7 +21920,7 @@ var IceReportFactory = function () {
 }();
 
 module.exports = IceReportFactory;
-},{"./icereport":105}],107:[function(require,module,exports){
+},{"./icereport":107}],109:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -21475,7 +21974,7 @@ var LocalAudioTrackStats = function (_LocalTrackStats) {
  */
 
 module.exports = LocalAudioTrackStats;
-},{"./localtrackstats":108}],108:[function(require,module,exports){
+},{"./localtrackstats":110}],110:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -21528,7 +22027,7 @@ var LocalTrackStats = function (_TrackStats) {
 }(TrackStats);
 
 module.exports = LocalTrackStats;
-},{"./trackstats":133}],109:[function(require,module,exports){
+},{"./trackstats":135}],111:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -21618,7 +22117,7 @@ var LocalVideoTrackStats = function (_LocalTrackStats) {
 }(LocalTrackStats);
 
 module.exports = LocalVideoTrackStats;
-},{"./localtrackstats":108}],110:[function(require,module,exports){
+},{"./localtrackstats":110}],112:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -21650,7 +22149,7 @@ var NetworkQualityAudioStats = function (_NetworkQualityMediaS) {
 }(NetworkQualityMediaStats);
 
 module.exports = NetworkQualityAudioStats;
-},{"./networkqualitymediastats":114}],111:[function(require,module,exports){
+},{"./networkqualitymediastats":116}],113:[function(require,module,exports){
 'use strict';
 
 /**
@@ -21694,7 +22193,7 @@ function NetworkQualityBandwidthStats(_ref) {
 };
 
 module.exports = NetworkQualityBandwidthStats;
-},{}],112:[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 'use strict';
 
 /**
@@ -21731,7 +22230,7 @@ function NetworkQualityFractionLostStats(_ref) {
 };
 
 module.exports = NetworkQualityFractionLostStats;
-},{}],113:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 'use strict';
 
 /**
@@ -21775,7 +22274,7 @@ function NetworkQualityLatencyStats(_ref) {
 };
 
 module.exports = NetworkQualityLatencyStats;
-},{}],114:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -21833,7 +22332,7 @@ function NetworkQualityMediaStats(_ref) {
 };
 
 module.exports = NetworkQualityMediaStats;
-},{"./networkqualityrecvstats":115,"./networkqualitysendstats":117}],115:[function(require,module,exports){
+},{"./networkqualityrecvstats":117,"./networkqualitysendstats":119}],117:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -21866,7 +22365,7 @@ var NetworkQualityRecvStats = function (_NetworkQualitySendOr) {
 }(NetworkQualitySendOrRecvStats);
 
 module.exports = NetworkQualityRecvStats;
-},{"./networkqualitysendorrecvstats":116}],116:[function(require,module,exports){
+},{"./networkqualitysendorrecvstats":118}],118:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -21917,7 +22416,7 @@ function NetworkQualitySendOrRecvStats(_ref) {
 };
 
 module.exports = NetworkQualitySendOrRecvStats;
-},{"./networkqualitybandwidthstats":111,"./networkqualityfractionloststats":112,"./networkqualitylatencystats":113}],117:[function(require,module,exports){
+},{"./networkqualitybandwidthstats":113,"./networkqualityfractionloststats":114,"./networkqualitylatencystats":115}],119:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -21950,7 +22449,7 @@ var NetworkQualitySendStats = function (_NetworkQualitySendOr) {
 }(NetworkQualitySendOrRecvStats);
 
 module.exports = NetworkQualitySendStats;
-},{"./networkqualitysendorrecvstats":116}],118:[function(require,module,exports){
+},{"./networkqualitysendorrecvstats":118}],120:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -21998,7 +22497,7 @@ function NetworkQualityStats(_ref) {
 };
 
 module.exports = NetworkQualityStats;
-},{"./networkqualityaudiostats":110,"./networkqualityvideostats":119}],119:[function(require,module,exports){
+},{"./networkqualityaudiostats":112,"./networkqualityvideostats":121}],121:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -22030,7 +22529,7 @@ var NetworkQualityVideoStats = function (_NetworkQualityMediaS) {
 }(NetworkQualityMediaStats);
 
 module.exports = NetworkQualityVideoStats;
-},{"./networkqualitymediastats":114}],120:[function(require,module,exports){
+},{"./networkqualitymediastats":116}],122:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -22129,7 +22628,7 @@ var PeerConnectionReport = function () {
 }();
 
 module.exports = PeerConnectionReport;
-},{"./receiverreport":122,"./senderreport":129}],121:[function(require,module,exports){
+},{"./receiverreport":124,"./senderreport":131}],123:[function(require,module,exports){
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -22660,7 +23159,7 @@ function updateChrome(factory) {
 }
 
 module.exports = PeerConnectionReportFactory;
-},{"./icereportfactory":106,"./peerconnectionreport":120,"./receiverreportfactory":123,"./senderreportfactory":130,"@twilio/webrtc/lib/util":16}],122:[function(require,module,exports){
+},{"./icereportfactory":108,"./peerconnectionreport":122,"./receiverreportfactory":125,"./senderreportfactory":132,"@twilio/webrtc/lib/util":16}],124:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -22808,7 +23307,7 @@ var ReceiverReport = function (_SenderOrReceiverRepo) {
 }(SenderOrReceiverReport);
 
 module.exports = ReceiverReport;
-},{"./average":104,"./senderorreceiverreport":127,"./sum":132}],123:[function(require,module,exports){
+},{"./average":106,"./senderorreceiverreport":129,"./sum":134}],125:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -22874,7 +23373,7 @@ var ReceiverReportFactory = function (_SenderOrReceiverRepo) {
 }(SenderOrReceiverReportFactory);
 
 module.exports = ReceiverReportFactory;
-},{"./receiverreport":122,"./senderorreceiverreportfactory":128}],124:[function(require,module,exports){
+},{"./receiverreport":124,"./senderorreceiverreportfactory":130}],126:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -22921,7 +23420,7 @@ var RemoteAudioTrackStats = function (_RemoteTrackStats) {
 }(RemoteTrackStats);
 
 module.exports = RemoteAudioTrackStats;
-},{"./remotetrackstats":125}],125:[function(require,module,exports){
+},{"./remotetrackstats":127}],127:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -22968,7 +23467,7 @@ var RemoteTrackStats = function (_TrackStats) {
 }(TrackStats);
 
 module.exports = RemoteTrackStats;
-},{"./trackstats":133}],126:[function(require,module,exports){
+},{"./trackstats":135}],128:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -23031,7 +23530,7 @@ var RemoteVideoTrackStats = function (_RemoteTrackStats) {
 }(RemoteTrackStats);
 
 module.exports = RemoteVideoTrackStats;
-},{"./remotetrackstats":125}],127:[function(require,module,exports){
+},{"./remotetrackstats":127}],129:[function(require,module,exports){
 'use strict';
 
 /**
@@ -23069,7 +23568,7 @@ function SenderOrReceiverReport(id, trackId, bitrate) {
 };
 
 module.exports = SenderOrReceiverReport;
-},{}],128:[function(require,module,exports){
+},{}],130:[function(require,module,exports){
 'use strict';
 
 /**
@@ -23109,7 +23608,7 @@ function SenderOrReceiverReportFactory(id, trackId, initialStats) {
 };
 
 module.exports = SenderOrReceiverReportFactory;
-},{}],129:[function(require,module,exports){
+},{}],131:[function(require,module,exports){
 /* eslint no-undefined:0 */
 'use strict';
 
@@ -23209,7 +23708,7 @@ var SenderReport = function (_SenderOrReceiverRepo) {
 }(SenderOrReceiverReport);
 
 module.exports = SenderReport;
-},{"./average":104,"./senderorreceiverreport":127,"./sum":132}],130:[function(require,module,exports){
+},{"./average":106,"./senderorreceiverreport":129,"./sum":134}],132:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -23275,7 +23774,7 @@ var SenderReportFactory = function (_SenderOrReceiverRepo) {
 }(SenderOrReceiverReportFactory);
 
 module.exports = SenderReportFactory;
-},{"./senderorreceiverreportfactory":128,"./senderreport":129}],131:[function(require,module,exports){
+},{"./senderorreceiverreportfactory":130,"./senderreport":131}],133:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -23340,7 +23839,7 @@ function StatsReport(peerConnectionId, statsResponse, prepareForInsights) {
 };
 
 module.exports = StatsReport;
-},{"./localaudiotrackstats":107,"./localvideotrackstats":109,"./remoteaudiotrackstats":124,"./remotevideotrackstats":126}],132:[function(require,module,exports){
+},{"./localaudiotrackstats":109,"./localvideotrackstats":111,"./remoteaudiotrackstats":126,"./remotevideotrackstats":128}],134:[function(require,module,exports){
 'use strict';
 
 /**
@@ -23355,7 +23854,7 @@ function sum(xs) {
 }
 
 module.exports = sum;
-},{}],133:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
 'use strict';
 
 /**
@@ -23415,7 +23914,7 @@ function TrackStats(trackId, statsReport) {
 };
 
 module.exports = TrackStats;
-},{}],134:[function(require,module,exports){
+},{}],136:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -23485,7 +23984,7 @@ var TrackTransceiver = function (_EventEmitter) {
  */
 
 module.exports = TrackTransceiver;
-},{"events":26}],135:[function(require,module,exports){
+},{"events":26}],137:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -24253,7 +24752,7 @@ TwilioConnection.CloseReason = CloseReason;
 
 module.exports = TwilioConnection;
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./statemachine":103,"./util":144,"./util/log":148,"./util/networkmonitor":149,"./util/timeout":157,"ws":166}],136:[function(require,module,exports){
+},{"./statemachine":105,"./util":146,"./util/log":150,"./util/networkmonitor":151,"./util/timeout":160,"ws":169}],138:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -24341,7 +24840,7 @@ var AsyncVar = function () {
 }();
 
 module.exports = AsyncVar;
-},{"./":144}],137:[function(require,module,exports){
+},{"./":146}],139:[function(require,module,exports){
 'use strict';
 
 /**
@@ -24489,7 +24988,7 @@ var CancelablePromise = function () {
 }();
 
 module.exports = CancelablePromise;
-},{}],138:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 'use strict';
 
 module.exports.DEFAULT_ENVIRONMENT = 'prod';
@@ -24574,7 +25073,17 @@ module.exports.trackPriority = {
   PRIORITY_LOW: 'low',
   PRIORITY_STANDARD: 'standard'
 };
-},{}],139:[function(require,module,exports){
+
+module.exports.clientTrackSwitchOffControl = {
+  MODE_AUTO: 'auto',
+  MODE_MANUAL: 'manual'
+};
+
+module.exports.videoContentPreferencesMode = {
+  MODE_AUTO: 'auto',
+  MODE_MANUAL: 'manual'
+};
+},{}],141:[function(require,module,exports){
 'use strict';
 
 var detectSilence = require('../webaudio/detectsilence');
@@ -24621,7 +25130,7 @@ function detectSilentAudio(el) {
 }
 
 module.exports = detectSilentAudio;
-},{"../webaudio/audiocontext":162,"../webaudio/detectsilence":163}],140:[function(require,module,exports){
+},{"../webaudio/audiocontext":165,"../webaudio/detectsilence":166}],142:[function(require,module,exports){
 'use strict';
 
 // Cached copy of the <canvas> used to check silent video frames.
@@ -24642,14 +25151,20 @@ var SAMPLE_WIDTH = 50;
  * @returns {boolean} true if silent, false if not
  */
 function checkSilence(el) {
-  var context = canvas.getContext('2d');
-  context.drawImage(el, 0, 0, SAMPLE_WIDTH, SAMPLE_HEIGHT);
-  var frame = context.getImageData(0, 0, SAMPLE_WIDTH, SAMPLE_HEIGHT);
-  var frameDataWithoutAlpha = frame.data.filter(function (item, i) {
-    return (i + 1) % 4;
-  });
-  var max = Math.max.apply(Math, frameDataWithoutAlpha);
-  return max === 0;
+  try {
+    var context = canvas.getContext('2d');
+    context.drawImage(el, 0, 0, SAMPLE_WIDTH, SAMPLE_HEIGHT);
+    var frame = context.getImageData(0, 0, SAMPLE_WIDTH, SAMPLE_HEIGHT);
+    var frameDataWithoutAlpha = frame.data.filter(function (item, i) {
+      return (i + 1) % 4;
+    });
+    var max = Math.max.apply(Math, frameDataWithoutAlpha);
+    return max === 0;
+  } catch (ex) {
+    // eslint-disable-next-line no-console
+    console.log('Error checking silence: ', ex);
+    return false;
+  }
 }
 
 /**
@@ -24681,7 +25196,7 @@ function detectSilentVideo(el) {
 }
 
 module.exports = detectSilentVideo;
-},{}],141:[function(require,module,exports){
+},{}],143:[function(require,module,exports){
 'use strict';
 
 /**
@@ -24711,9 +25226,7 @@ var DocumentVisibilityMonitor = function () {
       },
       _onVisibilityChange: {
         value: function value() {
-          if (document.visibilityState === 'visible') {
-            _this._emitVisible();
-          }
+          _this._emitVisible(document.visibilityState === 'visible');
         }
       }
     });
@@ -24723,7 +25236,20 @@ var DocumentVisibilityMonitor = function () {
     }
   }
 
+  /**
+   * clears the state.
+   */
+
+
   _createClass(DocumentVisibilityMonitor, [{
+    key: 'clear',
+    value: function clear() {
+      var nPhases = this._listeners.length;
+      for (var i = 0; i < nPhases; i++) {
+        this._listeners[i] = [];
+      }
+    }
+  }, {
     key: '_listenerCount',
     value: function _listenerCount() {
       return this._listeners.reduce(function (count, phaseListeners) {
@@ -24739,14 +25265,14 @@ var DocumentVisibilityMonitor = function () {
 
   }, {
     key: '_emitVisible',
-    value: function _emitVisible() {
+    value: function _emitVisible(isVisible) {
       var _this2 = this;
 
       var promise = Promise.resolve();
 
       var _loop = function _loop(phase) {
         promise = promise.then(function () {
-          return _this2._emitVisiblePhase(phase);
+          return _this2._emitVisiblePhase(phase, isVisible);
         });
       };
 
@@ -24763,10 +25289,10 @@ var DocumentVisibilityMonitor = function () {
 
   }, {
     key: '_emitVisiblePhase',
-    value: function _emitVisiblePhase(phase) {
+    value: function _emitVisiblePhase(phase, isVisible) {
       var phaseListeners = this._listeners[phase - 1];
       return Promise.all(phaseListeners.map(function (listener) {
-        var ret = listener();
+        var ret = listener(isVisible);
         return ret instanceof Promise ? ret : Promise.resolve(ret);
       }));
     }
@@ -24794,15 +25320,15 @@ var DocumentVisibilityMonitor = function () {
     }
 
     /**
-     * Listen for the DOM to be visible at the given phase.
+     * Listen for the DOM visibility changes at the given phase.
      * @param {number} phase
      * @param {function} listener
      * @returns {this}
      */
 
   }, {
-    key: 'onVisible',
-    value: function onVisible(phase, listener) {
+    key: 'onVisibilityChange',
+    value: function onVisibilityChange(phase, listener) {
       if (typeof phase !== 'number' || phase <= 0 || phase > this._listeners.length) {
         throw new Error('invalid phase: ', phase);
       }
@@ -24815,15 +25341,15 @@ var DocumentVisibilityMonitor = function () {
     }
 
     /**
-     * Stop listening for the DOM to be visible at the given phase.
+     * Stop listening for the DOM visibility change at the given phase.
      * @param {number} phase
      * @param {function} listener
      * @returns {this}
      */
 
   }, {
-    key: 'offVisible',
-    value: function offVisible(phase, listener) {
+    key: 'offVisibilityChange',
+    value: function offVisibilityChange(phase, listener) {
       if (typeof phase !== 'number' || phase <= 0 || phase > this._listeners.length) {
         throw new Error('invalid phase: ', phase);
       }
@@ -24844,7 +25370,7 @@ var DocumentVisibilityMonitor = function () {
 }();
 
 module.exports = new DocumentVisibilityMonitor(2);
-},{}],142:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
 /* eslint-disable no-console */
 'use strict';
 
@@ -24971,7 +25497,7 @@ var EventObserver = function (_EventEmitter) {
  */
 
 module.exports = EventObserver;
-},{"events":26}],143:[function(require,module,exports){
+},{"events":26}],145:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -25036,12 +25562,12 @@ var Filter = function () {
 }();
 
 module.exports = Filter;
-},{}],144:[function(require,module,exports){
+},{}],146:[function(require,module,exports){
 'use strict';
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -25185,6 +25711,30 @@ function flatMap(list, mapFn) {
  */
 function getUserAgent() {
   return typeof navigator !== 'undefined' && navigator.userAgent ? navigator.userAgent : 'Unknown';
+}
+
+/**
+ * Get the platform component of the user agent string.
+ * Example:
+ *   Input - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36
+ *   Output - macintosh
+ * @returns {string}
+ */
+function getPlatform() {
+  var userAgent = getUserAgent();
+
+  var _ref = userAgent.match(/\(([^)]+)\)/) || [],
+      _ref2 = _slicedToArray(_ref, 2),
+      _ref2$ = _ref2[1],
+      match = _ref2$ === undefined ? 'unknown' : _ref2$;
+
+  var _match$split$map = match.split(';').map(function (entry) {
+    return entry.trim();
+  }),
+      _match$split$map2 = _slicedToArray(_match$split$map, 1),
+      platform = _match$split$map2[0];
+
+  return platform.toLowerCase();
 }
 
 /**
@@ -25514,7 +26064,7 @@ function hidePrivateAndCertainPublicPropertiesInClass(klass, props) {
     _inherits(_class, _klass);
 
     function _class() {
-      var _ref;
+      var _ref3;
 
       _classCallCheck(this, _class);
 
@@ -25522,7 +26072,7 @@ function hidePrivateAndCertainPublicPropertiesInClass(klass, props) {
         args[_key] = arguments[_key];
       }
 
-      var _this = _possibleConstructorReturn(this, (_ref = _class.__proto__ || Object.getPrototypeOf(_class)).call.apply(_ref, [this].concat(args)));
+      var _this = _possibleConstructorReturn(this, (_ref3 = _class.__proto__ || Object.getPrototypeOf(_class)).call.apply(_ref3, [this].concat(args)));
 
       hidePrivateProperties(_this);
       hidePublicProperties(_this, props);
@@ -25587,10 +26137,10 @@ function setToJSON(set) {
  * @returns {object}
  */
 function mapToJSON(map) {
-  return [].concat(_toConsumableArray(map.entries())).reduce(function (json, _ref2) {
-    var _ref3 = _slicedToArray(_ref2, 2),
-        key = _ref3[0],
-        value = _ref3[1];
+  return [].concat(_toConsumableArray(map.entries())).reduce(function (json, _ref4) {
+    var _ref5 = _slicedToArray(_ref4, 2),
+        key = _ref5[0],
+        value = _ref5[1];
 
     return Object.assign(_defineProperty({}, key, valueToJSON(value)), json);
   }, {});
@@ -25603,10 +26153,10 @@ function mapToJSON(map) {
  * @returns {object}
  */
 function objectToJSON(object) {
-  return Object.entries(object).reduce(function (json, _ref4) {
-    var _ref5 = _slicedToArray(_ref4, 2),
-        key = _ref5[0],
-        value = _ref5[1];
+  return Object.entries(object).reduce(function (json, _ref6) {
+    var _ref7 = _slicedToArray(_ref6, 2),
+        key = _ref7[0],
+        value = _ref7[1];
 
     return Object.assign(_defineProperty({}, key, valueToJSON(value)), json);
   }, {});
@@ -25649,20 +26199,20 @@ function createRoomConnectEventPayload(connectOptions) {
   };
 
   // boolean properties.
-  [['audio'], ['automaticSubscription'], ['enableDscp'], ['eventListener'], ['preflight'], ['video'], ['dominantSpeaker', 'enableDominantSpeaker']].forEach(function (_ref6) {
-    var _ref7 = _slicedToArray(_ref6, 2),
-        prop = _ref7[0],
-        eventProp = _ref7[1];
+  [['audio'], ['automaticSubscription'], ['enableDscp'], ['eventListener'], ['preflight'], ['video'], ['dominantSpeaker', 'enableDominantSpeaker']].forEach(function (_ref8) {
+    var _ref9 = _slicedToArray(_ref8, 2),
+        prop = _ref9[0],
+        eventProp = _ref9[1];
 
     eventProp = eventProp || prop;
     payload[eventProp] = boolToString(!!connectOptions[prop]);
   });
 
   // numbers and string properties.
-  [['maxVideoBitrate'], ['maxAudioBitrate'], ['iceTransportPolicy'], ['region'], ['name', 'roomName']].forEach(function (_ref8) {
-    var _ref9 = _slicedToArray(_ref8, 2),
-        prop = _ref9[0],
-        eventProp = _ref9[1];
+  [['maxVideoBitrate'], ['maxAudioBitrate'], ['iceTransportPolicy'], ['region'], ['name', 'roomName']].forEach(function (_ref10) {
+    var _ref11 = _slicedToArray(_ref10, 2),
+        prop = _ref11[0],
+        eventProp = _ref11[1];
 
     eventProp = eventProp || prop;
     if (typeof connectOptions[prop] === 'number' || typeof connectOptions[prop] === 'string') {
@@ -25694,17 +26244,15 @@ function createRoomConnectEventPayload(connectOptions) {
   if (connectOptions.bandwidthProfile && connectOptions.bandwidthProfile.video) {
     var videoBPOptions = connectOptions.bandwidthProfile.video || {};
     payload.bandwidthProfileOptions = {};
-    ['mode', 'maxTracks', 'trackSwitchOffMode', 'dominantSpeakerPriority', 'maxSubscriptionBitrate'].forEach(function (prop) {
+    ['mode', 'maxTracks', 'trackSwitchOffMode', 'dominantSpeakerPriority', 'maxSubscriptionBitrate', 'renderDimensions', 'contentPreferencesMode', 'clientTrackSwitchOffControl'].forEach(function (prop) {
       if (typeof videoBPOptions[prop] === 'number' || typeof videoBPOptions[prop] === 'string') {
-        if (prop in videoBPOptions) {
-          payload.bandwidthProfileOptions[prop] = videoBPOptions[prop];
-        }
+        payload.bandwidthProfileOptions[prop] = videoBPOptions[prop];
+      } else if (typeof videoBPOptions[prop] === 'boolean') {
+        payload.bandwidthProfileOptions[prop] = boolToString(videoBPOptions[prop]);
+      } else if (_typeof(videoBPOptions[prop]) === 'object') {
+        payload.bandwidthProfileOptions[prop] = JSON.stringify(videoBPOptions[prop]);
       }
     });
-
-    if ('renderDimensions' in videoBPOptions) {
-      payload.bandwidthProfileOptions.renderDimensions = JSON.stringify(videoBPOptions.renderDimensions);
-    }
   }
 
   return {
@@ -25743,15 +26291,19 @@ function createBandwidthProfileVideoPayload(bandwidthProfileVideo) {
  *   protocol or not
  * @param {boolean} trackSwitchOff - whether to enable the Track Switch-Off
  *   protocol or not.
+ * @param {boolean} renderHints - whether to enable the renderHints
+ *   protocol or not.
  * @returns {object}
  */
-function createMediaSignalingPayload(dominantSpeaker, networkQuality, trackPriority, trackSwitchOff) {
+function createMediaSignalingPayload(dominantSpeaker, networkQuality, trackPriority, trackSwitchOff, renderHints) {
   var transports = { transports: [{ type: 'data-channel' }] };
   return Object.assign(dominantSpeaker
   // eslint-disable-next-line
   ? { active_speaker: transports } : {}, networkQuality
   // eslint-disable-next-line
-  ? { network_quality: transports } : {}, trackPriority
+  ? { network_quality: transports } : {}, renderHints
+  // eslint-disable-next-line
+  ? { render_hints: transports } : {}, trackPriority
   // eslint-disable-next-line
   ? { track_priority: transports } : {}, trackSwitchOff
   // eslint-disable-next-line
@@ -25789,15 +26341,15 @@ function createRenderDimensionsPayload(renderDimensions) {
  * @returns {object}
  */
 function createRSPPayload(object, propConversions) {
-  return propConversions.reduce(function (payload, _ref10) {
-    var prop = _ref10.prop,
-        type = _ref10.type,
-        _ref10$payloadProp = _ref10.payloadProp,
-        payloadProp = _ref10$payloadProp === undefined ? prop : _ref10$payloadProp,
-        _ref10$transform = _ref10.transform,
-        transform = _ref10$transform === undefined ? function (x) {
+  return propConversions.reduce(function (payload, _ref12) {
+    var prop = _ref12.prop,
+        type = _ref12.type,
+        _ref12$payloadProp = _ref12.payloadProp,
+        payloadProp = _ref12$payloadProp === undefined ? prop : _ref12$payloadProp,
+        _ref12$transform = _ref12.transform,
+        transform = _ref12$transform === undefined ? function (x) {
       return x;
-    } : _ref10$transform;
+    } : _ref12$transform;
 
     return _typeof(object[prop]) === type ? Object.assign(_defineProperty({}, payloadProp, transform(object[prop])), payload) : payload;
   }, {});
@@ -25893,6 +26445,7 @@ exports.deprecateEvents = deprecateEvents;
 exports.difference = difference;
 exports.filterObject = filterObject;
 exports.flatMap = flatMap;
+exports.getPlatform = getPlatform;
 exports.getUserAgent = getUserAgent;
 exports.hidePrivateProperties = hidePrivateProperties;
 exports.hidePrivateAndCertainPublicPropertiesInClass = hidePrivateAndCertainPublicPropertiesInClass;
@@ -25915,7 +26468,7 @@ exports.withJitter = withJitter;
 exports.isChromeScreenShareTrack = isChromeScreenShareTrack;
 exports.waitForSometime = waitForSometime;
 exports.waitForEvent = waitForEvent;
-},{"./constants":138,"@twilio/webrtc/lib/util":16}],145:[function(require,module,exports){
+},{"./constants":140,"@twilio/webrtc/lib/util":16}],147:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -26233,7 +26786,7 @@ function reconnect(publisher, token, sdkName, sdkVersion, roomSid, participantSi
 
 module.exports = InsightsPublisher;
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"..":144,"../../util":144,"events":26,"ws":166}],146:[function(require,module,exports){
+},{"..":146,"../../util":146,"events":26,"ws":169}],148:[function(require,module,exports){
 // eslint-disable-next-line no-warning-comments
 // TODO(mroberts): This should be described as implementing some
 // InsightsPublisher interface.
@@ -26300,7 +26853,7 @@ var InsightsPublisher = function () {
 }();
 
 module.exports = InsightsPublisher;
-},{}],147:[function(require,module,exports){
+},{}],149:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -26387,7 +26940,7 @@ var LocalMediaRestartDeferreds = function () {
 }();
 
 module.exports = new LocalMediaRestartDeferreds();
-},{"./":144}],148:[function(require,module,exports){
+},{"./":146}],150:[function(require,module,exports){
 /* eslint new-cap:0 */
 'use strict';
 
@@ -26729,7 +27282,7 @@ function validateLogLevels(levels) {
 }
 
 module.exports = Log;
-},{"../vendor/loglevel":161,"./constants":138}],149:[function(require,module,exports){
+},{"../vendor/loglevel":164,"./constants":140}],151:[function(require,module,exports){
 'use strict';
 
 /**
@@ -26844,13 +27397,99 @@ var NetworkMonitor = function () {
 }();
 
 module.exports = NetworkMonitor;
-},{}],150:[function(require,module,exports){
+},{}],152:[function(require,module,exports){
+/* eslint-disable no-console */
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var NullObserver = function () {
+  function NullObserver(callback) {
+    _classCallCheck(this, NullObserver);
+
+    Object.defineProperties(this, {
+      _callback: {
+        value: callback
+      }
+    });
+  }
+
+  _createClass(NullObserver, [{
+    key: 'observe',
+    value: function observe() {}
+  }, {
+    key: 'unobserve',
+    value: function unobserve() {}
+  }, {
+    key: 'makeVisible',
+    value: function makeVisible(videoEl) {
+      var visibleEntry = this._makeFakeEntry(videoEl, true);
+      this._callback([visibleEntry]);
+    }
+  }, {
+    key: 'makeInvisible',
+    value: function makeInvisible(videoEl) {
+      var invisibleEntry = this._makeFakeEntry(videoEl, false);
+      this._callback([invisibleEntry]);
+    }
+  }, {
+    key: '_makeFakeEntry',
+    value: function _makeFakeEntry(videoElement, isIntersecting) {
+      return { target: videoElement, isIntersecting: isIntersecting };
+    }
+  }]);
+
+  return NullObserver;
+}();
+
+var NullIntersectionObserver = function (_NullObserver) {
+  _inherits(NullIntersectionObserver, _NullObserver);
+
+  function NullIntersectionObserver() {
+    _classCallCheck(this, NullIntersectionObserver);
+
+    return _possibleConstructorReturn(this, (NullIntersectionObserver.__proto__ || Object.getPrototypeOf(NullIntersectionObserver)).apply(this, arguments));
+  }
+
+  return NullIntersectionObserver;
+}(NullObserver);
+
+var NullResizeObserver = function (_NullObserver2) {
+  _inherits(NullResizeObserver, _NullObserver2);
+
+  function NullResizeObserver() {
+    _classCallCheck(this, NullResizeObserver);
+
+    return _possibleConstructorReturn(this, (NullResizeObserver.__proto__ || Object.getPrototypeOf(NullResizeObserver)).apply(this, arguments));
+  }
+
+  _createClass(NullResizeObserver, [{
+    key: 'resize',
+    value: function resize(videoEl) {
+      var entry = this._makeFakeEntry(videoEl, true);
+      this._callback([entry]);
+    }
+  }]);
+
+  return NullResizeObserver;
+}(NullObserver);
+
+module.exports = { NullIntersectionObserver: NullIntersectionObserver, NullResizeObserver: NullResizeObserver, NullObserver: NullObserver };
+},{}],153:[function(require,module,exports){
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-var difference = require('../').difference;
-var flatMap = require('../').flatMap;
+var _require = require('../'),
+    difference = _require.difference,
+    flatMap = _require.flatMap;
+
 var setSimulcastInMediaSection = require('./simulcast');
 
 var ptToFixedBitrateAudioCodecName = {
@@ -27144,101 +27783,103 @@ function setSimulcast(sdp, sdpFormat, trackIdsToAttributes) {
 }
 
 /**
- * Get the matching Payload Types in a unified plan local m= section for a particular remote codec.
- * @param {Codec} remoteCodec
- * @param {PT} remotePt
- * @param {Map<Codec, PT>} localCodecsToPts
- * @param {string} localSection
- * @param {string} remoteSection
+ * Get the matching Payload Types in a unified plan m= section for a particular peer codec.
+ * @param {Codec} peerCodec
+ * @param {PT} peerPt
+ * @param {Map<Codec, PT>} codecsToPts
+ * @param {string} section
+ * @param {string} peerSection
  * @returns {Array<PT>}
  */
-function unifiedPlanGetMatchingLocalPayloadTypes(remoteCodec, remotePt, localCodecsToPts, localSection, remoteSection) {
+function unifiedPlanGetMatchingPayloadTypes(peerCodec, peerPt, codecsToPts, section, peerSection) {
   // If there is at most one local Payload Type that matches the remote codec, retain it.
-  var matchingLocalPts = localCodecsToPts.get(remoteCodec) || [];
-  if (matchingLocalPts.length <= 1) {
-    return matchingLocalPts;
+  var matchingPts = codecsToPts.get(peerCodec) || [];
+  if (matchingPts.length <= 1) {
+    return matchingPts;
   }
 
-  // If there are no fmtp attributes for the codec in the remote m= section,
-  // then we cannot get a match in the local m= section. In that case, retain
-  // all matching local Payload Types.
-  var remoteFmtpAttrs = getFmtpAttributesForPt(remotePt, remoteSection);
-  if (!remoteFmtpAttrs) {
-    return matchingLocalPts;
+  // If there are no fmtp attributes for the codec in the peer m= section, then we
+  // cannot get a match in the  m= section. In that case, retain all matching Payload
+  // Types.
+  var peerFmtpAttrs = getFmtpAttributesForPt(peerPt, peerSection);
+  if (!peerFmtpAttrs) {
+    return matchingPts;
   }
 
   // Among the matched local Payload Types, find the one that matches the remote
   // fmtp attributes.
-  var matchinglocalPt = matchingLocalPts.find(function (localPt) {
-    var localFmtpAttrs = getFmtpAttributesForPt(localPt, localSection);
-    return localFmtpAttrs && Object.keys(remoteFmtpAttrs).every(function (attr) {
-      return remoteFmtpAttrs[attr] === localFmtpAttrs[attr];
+  var matchingPt = matchingPts.find(function (pt) {
+    var fmtpAttrs = getFmtpAttributesForPt(pt, section);
+    return fmtpAttrs && Object.keys(peerFmtpAttrs).every(function (attr) {
+      return peerFmtpAttrs[attr] === fmtpAttrs[attr];
     });
   });
 
-  // If none of the matched local Payload Types also have matching fmtp attributes,
-  // then retain all of them, otherwise retain only the local Payload Type that
-  // matches the remote fmtp attributes.
-  return typeof matchinglocalPt === 'number' ? [matchinglocalPt] : matchingLocalPts;
+  // If none of the matched Payload Types also have matching fmtp attributes,
+  // then retain all of them, otherwise retain only the Payload Type that
+  // matches the peer fmtp attributes.
+  return typeof matchingPt === 'number' ? [matchingPt] : matchingPts;
 }
 
 /**
- * Filter codecs in a local unified plan m= section based on its equivalent remote m= section.
- * @param {string} localSection
- * @param {Map<string, string>} remoteMidsToMediaSections
+ * Filter codecs in a unified plan m= section based on its peer m= section.
+ * from the other peer.
+ * @param {string} section
+ * @param {Map<string, string>} peerMidsToMediaSections
+ * @param {Array<string>} codecsToRemove
  * @returns {string}
  */
-function unifiedPlanFilterCodecsInLocalMediaSection(localSection, remoteMidsToMediaSections) {
-  // Do nothing if the local m= section represents neither audio nor video.
-  if (!/^m=(audio|video)/.test(localSection)) {
-    return localSection;
+function unifiedPlanFilterCodecsInMediaSection(section, peerMidsToMediaSections, codecsToRemove) {
+  // Do nothing if the m= section represents neither audio nor video.
+  if (!/^m=(audio|video)/.test(section)) {
+    return section;
   }
 
-  // Do nothing if the local m= section does not have an equivalent remote m= section.
-  var localMid = getMidForMediaSection(localSection);
-  var remoteSection = localMid && remoteMidsToMediaSections.get(localMid);
-  if (!remoteSection) {
-    return localSection;
+  // Do nothing if the m= section does not have an equivalent remote m= section.
+  var mid = getMidForMediaSection(section);
+  var peerSection = mid && peerMidsToMediaSections.get(mid);
+  if (!peerSection) {
+    return section;
   }
 
-  // Construct a Map of the remote Payload Types to their codec names.
-  var remotePtToCodecs = createPtToCodecName(remoteSection);
-  // Construct a Map of the local codec names to their Payload Types.
-  var localCodecsToPts = createCodecMapForMediaSection(localSection);
-  // Maintain a list of local non-rtx Payload Types to retain.
-  var localPts = flatMap(Array.from(remotePtToCodecs), function (_ref2) {
+  // Construct a Map of the peer Payload Types to their codec names.
+  var peerPtToCodecs = createPtToCodecName(peerSection);
+  // Construct a Map of the codec names to their Payload Types.
+  var codecsToPts = createCodecMapForMediaSection(section);
+  // Maintain a list of non-rtx Payload Types to retain.
+  var pts = flatMap(Array.from(peerPtToCodecs), function (_ref2) {
     var _ref3 = _slicedToArray(_ref2, 2),
-        remotePt = _ref3[0],
-        remoteCodec = _ref3[1];
+        peerPt = _ref3[0],
+        peerCodec = _ref3[1];
 
-    return remoteCodec !== 'rtx' ? unifiedPlanGetMatchingLocalPayloadTypes(remoteCodec, remotePt, localCodecsToPts, localSection, remoteSection) : [];
+    return peerCodec !== 'rtx' && !codecsToRemove.includes(peerCodec) ? unifiedPlanGetMatchingPayloadTypes(peerCodec, peerPt, codecsToPts, section, peerSection) : [];
   });
 
-  // For each local Payload Type that will be retained, retain their
-  // corresponding rtx Payload Type if present.
-  var localRtxPts = localCodecsToPts.get('rtx') || [];
+  // For each Payload Type that will be retained, retain their corresponding rtx
+  // Payload Type if present.
+  var rtxPts = codecsToPts.get('rtx') || [];
   // In "a=fmtp:<rtxPt> apt=<apt>", extract the codec PT <apt> associated with rtxPt.
-  localPts = localPts.concat(localRtxPts.filter(function (rtxPt) {
-    var fmtpAttrs = getFmtpAttributesForPt(rtxPt, localSection);
-    return fmtpAttrs && localPts.includes(fmtpAttrs.apt);
+  pts = pts.concat(rtxPts.filter(function (rtxPt) {
+    var fmtpAttrs = getFmtpAttributesForPt(rtxPt, section);
+    return fmtpAttrs && pts.includes(fmtpAttrs.apt);
   }));
 
-  // Filter out the below mentioned attribute lines in the local m= section that
-  // do not belong to one of the local Payload Types that are to be retained.
+  // Filter out the below mentioned attribute lines in the m= section that do not
+  // belong to one of the Payload Types that are to be retained.
   // 1. "a=rtpmap:<pt> <codec>"
   // 2. "a=rtcp-fb:<pt> <attr>[ <attr>]*"
   // 3. "a=fmtp:<pt> <name>=<value>[;<name>=<value>]*"
-  var lines = localSection.split('\r\n').filter(function (line) {
+  var lines = section.split('\r\n').filter(function (line) {
     var ptMatches = line.match(/^a=(rtpmap|fmtp|rtcp-fb):(.+) .+$/);
     var pt = ptMatches && ptMatches[2];
-    return !ptMatches || pt && localPts.includes(parseInt(pt, 10));
+    return !ptMatches || pt && pts.includes(parseInt(pt, 10));
   });
 
   // Filter the list of Payload Types in the first line of the m= section.
-  var orderedLocalPts = getPayloadTypesInMediaSection(localSection).filter(function (pt) {
-    return localPts.includes(pt);
+  var orderedPts = getPayloadTypesInMediaSection(section).filter(function (pt) {
+    return pts.includes(pt);
   });
-  return setPayloadTypesInMediaSection(orderedLocalPts, lines.join('\r\n'));
+  return setPayloadTypesInMediaSection(orderedPts, lines.join('\r\n'));
 }
 
 /**
@@ -27252,7 +27893,7 @@ function unifiedPlanFilterLocalCodecs(localSdp, remoteSdp) {
   var localSession = localSdp.split('\r\nm=')[0];
   var remoteMidsToMediaSections = createMidToMediaSectionMap(remoteSdp);
   return [localSession].concat(localMediaSections.map(function (localSection) {
-    return unifiedPlanFilterCodecsInLocalMediaSection(localSection, remoteMidsToMediaSections);
+    return unifiedPlanFilterCodecsInMediaSection(localSection, remoteMidsToMediaSections, []);
   })).join('\r\n');
 }
 
@@ -27513,7 +28154,7 @@ exports.setSimulcast = setSimulcast;
 exports.unifiedPlanFilterLocalCodecs = unifiedPlanFilterLocalCodecs;
 exports.unifiedPlanAddOrRewriteNewTrackIds = unifiedPlanAddOrRewriteNewTrackIds;
 exports.unifiedPlanAddOrRewriteTrackIds = unifiedPlanAddOrRewriteTrackIds;
-},{"../":144,"./simulcast":152}],151:[function(require,module,exports){
+},{"../":146,"./simulcast":155}],154:[function(require,module,exports){
 'use strict';
 
 var RTCSessionDescription = require('@twilio/webrtc').RTCSessionDescription;
@@ -27728,7 +28369,7 @@ function addFmtpAttributeForRtxPt(mediaSection, rtxPt, pt) {
 }
 
 module.exports = workaround;
-},{"./":150,"@twilio/webrtc":3}],152:[function(require,module,exports){
+},{"./":153,"@twilio/webrtc":3}],155:[function(require,module,exports){
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -28066,7 +28707,7 @@ function setSimulcastInMediaSection(section, sdpFormat, trackIdsToAttributes) {
  */
 
 module.exports = setSimulcastInMediaSection;
-},{"../":144}],153:[function(require,module,exports){
+},{"../":146}],156:[function(require,module,exports){
 'use strict';
 
 /**
@@ -28109,7 +28750,7 @@ var IdentityTrackMatcher = function () {
 }();
 
 module.exports = IdentityTrackMatcher;
-},{}],154:[function(require,module,exports){
+},{}],157:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -28174,7 +28815,7 @@ var MIDTrackMatcher = function () {
 }();
 
 module.exports = MIDTrackMatcher;
-},{"../":150}],155:[function(require,module,exports){
+},{"../":153}],158:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -28316,7 +28957,7 @@ var OrderedTrackMatcher = function () {
 }();
 
 module.exports = OrderedTrackMatcher;
-},{"../":150,"../../":144}],156:[function(require,module,exports){
+},{"../":153,"../../":146}],159:[function(require,module,exports){
 /* globals chrome, navigator */
 'use strict';
 
@@ -28417,7 +29058,7 @@ function isSupported() {
 }
 
 module.exports = isSupported;
-},{"@twilio/webrtc/lib/util":16}],157:[function(require,module,exports){
+},{"@twilio/webrtc/lib/util":16}],160:[function(require,module,exports){
 'use strict';
 
 /**
@@ -28542,7 +29183,7 @@ var Timeout = function () {
 }();
 
 module.exports = Timeout;
-},{}],158:[function(require,module,exports){
+},{}],161:[function(require,module,exports){
 // NOTE: Do not edit this file. This code is auto-generated. Contact the
 // Twilio SDK Team for more information.
 
@@ -29788,7 +30429,7 @@ var ConfigurationAcquireTurnFailedError = function (_TwilioError53) {
 
 exports.ConfigurationAcquireTurnFailedError = ConfigurationAcquireTurnFailedError;
 Object.defineProperty(TwilioErrorByCode, 53501, { value: ConfigurationAcquireTurnFailedError });
-},{"./twilioerror":159}],159:[function(require,module,exports){
+},{"./twilioerror":162}],162:[function(require,module,exports){
 'use strict';
 
 /**
@@ -29860,7 +30501,7 @@ var TwilioError = function (_Error) {
 }(Error);
 
 module.exports = TwilioError;
-},{}],160:[function(require,module,exports){
+},{}],163:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -29870,6 +30511,8 @@ var _require = require('./'),
 
 var _require2 = require('./constants'),
     E = _require2.typeErrors,
+    clientTrackSwitchOffControl = _require2.clientTrackSwitchOffControl,
+    videoContentPreferencesMode = _require2.videoContentPreferencesMode,
     subscriptionMode = _require2.subscriptionMode,
     trackPriority = _require2.trackPriority,
     trackSwitchOffMode = _require2.trackSwitchOffMode;
@@ -29886,8 +30529,30 @@ function validateBandwidthProfile(bandwidthProfile) {
   if (!bandwidthProfile || error) {
     return error;
   }
-  error = validateObject(bandwidthProfile.video, 'options.bandwidthProfile.video', [{ prop: 'dominantSpeakerPriority', values: Object.values(trackPriority) }, { prop: 'maxSubscriptionBitrate', type: 'number' }, { prop: 'maxTracks', type: 'number' }, { prop: 'mode', values: Object.values(subscriptionMode) }, { prop: 'trackSwitchOffMode', values: Object.values(trackSwitchOffMode) }]);
-  return error || (bandwidthProfile.video ? validateRenderDimensions(bandwidthProfile.video.renderDimensions) : null);
+  error = validateObject(bandwidthProfile.video, 'options.bandwidthProfile.video', [{ prop: 'contentPreferencesMode', values: Object.values(videoContentPreferencesMode) }, { prop: 'dominantSpeakerPriority', values: Object.values(trackPriority) }, { prop: 'maxSubscriptionBitrate', type: 'number' }, { prop: 'maxTracks', type: 'number' }, { prop: 'mode', values: Object.values(subscriptionMode) }, { prop: 'clientTrackSwitchOffControl', values: Object.values(clientTrackSwitchOffControl) }, { prop: 'trackSwitchOffMode', values: Object.values(trackSwitchOffMode) }]);
+
+  if (error) {
+    return error;
+  }
+
+  if (bandwidthProfile.video) {
+
+    // maxTracks is replaced by clientTrackSwitchOffControl.
+    // throw an error if both are specified.
+    if ('maxTracks' in bandwidthProfile.video && 'clientTrackSwitchOffControl' in bandwidthProfile.video) {
+      return new TypeError('options.bandwidthProfile.video.maxTracks is deprecated. Use options.bandwidthProfile.video.clientTrackSwitchOffControl instead.');
+    }
+
+    // renderDimensions is replaced by contentPreferencesMode.
+    // throw an error if both are specified.
+    if ('renderDimensions' in bandwidthProfile.video && 'contentPreferencesMode' in bandwidthProfile.video) {
+      return new TypeError('options.bandwidthProfile.video.renderDimensions is deprecated. Use options.bandwidthProfile.video.contentPreferencesMode instead.');
+    }
+
+    return validateRenderDimensions(bandwidthProfile.video.renderDimensions);
+  }
+
+  return null;
 }
 
 /**
@@ -29951,8 +30616,8 @@ function validateObject(object, name) {
 }
 
 /**
- * Validate the {@link VideoRenderDimensions} object.
- * @param {VideoRenderDimensions} renderDimensions
+ * Validates the renderDimensions field to be "auto" or {@link VideoRenderDimensions} object.
+ * @param {string|VideoRenderDimensions} renderDimensions
  * @returns {?Error} - null if valid, Error if not.
  */
 function validateRenderDimensions(renderDimensions) {
@@ -29966,7 +30631,7 @@ function validateRenderDimensions(renderDimensions) {
 exports.validateBandwidthProfile = validateBandwidthProfile;
 exports.validateLocalTrack = validateLocalTrack;
 exports.validateObject = validateObject;
-},{"./":144,"./constants":138}],161:[function(require,module,exports){
+},{"./":146,"./constants":140}],164:[function(require,module,exports){
 "use strict";
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -30225,7 +30890,7 @@ defaultLogger.getLoggers = function getLoggers() {
 defaultLogger['default'] = defaultLogger;
 
 module.exports = defaultLogger;
-},{}],162:[function(require,module,exports){
+},{}],165:[function(require,module,exports){
 /* globals webkitAudioContext, AudioContext */
 'use strict';
 
@@ -30324,7 +30989,7 @@ var AudioContextFactory = function () {
 }();
 
 module.exports = new AudioContextFactory();
-},{}],163:[function(require,module,exports){
+},{}],166:[function(require,module,exports){
 'use strict';
 
 /**
@@ -30389,7 +31054,7 @@ function detectSilence(audioContext, stream, timeout) {
 }
 
 module.exports = detectSilence;
-},{}],164:[function(require,module,exports){
+},{}],167:[function(require,module,exports){
 'use strict';
 
 var detectSilence = require('./detectsilence');
@@ -30463,12 +31128,12 @@ to get a new one, but we\'ve run out of retries; returning it anyway.');
 }
 
 module.exports = workaround;
-},{"./audiocontext":162,"./detectsilence":163}],165:[function(require,module,exports){
+},{"./audiocontext":165,"./detectsilence":166}],168:[function(require,module,exports){
 module.exports={
   "name": "twilio-video",
   "title": "Twilio Video",
   "description": "Twilio Video JavaScript Library",
-  "version": "2.13.0",
+  "version": "2.14.0",
   "homepage": "https://twilio.com",
   "author": "Mark Andrus Roberts <mroberts@twilio.com>",
   "contributors": [
@@ -30601,7 +31266,7 @@ module.exports={
     "cover": "istanbul cover node_modules/mocha/bin/_mocha -- ./test/unit/index.js"
   },
   "dependencies": {
-    "@twilio/webrtc": "4.3.2",
+    "@twilio/webrtc": "4.3.3",
     "backoff": "^2.5.0",
     "ws": "^3.3.1",
     "xmlhttprequest": "^1.8.0"
@@ -30612,10 +31277,10 @@ module.exports={
   }
 }
 
-},{}],166:[function(require,module,exports){
+},{}],169:[function(require,module,exports){
 module.exports = WebSocket;
 
-},{}],167:[function(require,module,exports){
+},{}],170:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -30640,14 +31305,14 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],168:[function(require,module,exports){
+},{}],171:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],169:[function(require,module,exports){
+},{}],172:[function(require,module,exports){
 (function (process,global){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -31237,10 +31902,10 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":168,"_process":30,"inherits":167}],170:[function(require,module,exports){
+},{"./support/isBuffer":171,"_process":30,"inherits":170}],173:[function(require,module,exports){
 'use strict';
 
-const { createLocalTracks, connect } = require('twilio-video');
+const { createLocalTracks, createLocalVideoTrack, createLocalAudioTrack, connect } = require('twilio-video');
 
 const selfVideo = document.getElementById('self-video');
 const participantVideo = document.getElementById('participant-video');
@@ -31250,11 +31915,23 @@ let roomName = params.get('roomName');
 let identity = params.get('identity');
 let roomSid = params.get('roomSid');
 let messageElement = $('#message');
-let isPharmacy = false;
+
+const participantInfo = $('#participant-info-section');
+const participantName = $('#participant-name', participantInfo);
+const participantBirthdate = $('#participant-birthdate', participantInfo);
+
+//-- Server-side Fill Elements
+let isPharmacy = true; 
+let name = 'Jeff Julian';
+let birthDate = 'May 3, 1981';
 
 let token = null;
 let room = null;
 let roomJoined = false;
+
+let tracks = null;
+let videoTrack = null;
+let audioTrack = null;
 
 const connectOptions = {
 	bandwidthProfile: {
@@ -31278,30 +31955,79 @@ const connectOptions = {
 	name: roomName
 };
 
+if(isPharmacy) {
+	participantInfo.removeClass('hidden');
+	participantName.html(name);
+	participantBirthdate.html(birthDate);
+}
+
 messageElement.html('Loading...');
 
 fetch(`https://dev.vcall.us/scripts/token?identity=${identity}&roomSid=${roomSid}&roomName=${roomName}`).then(response => {
 	response.text().then(value => {
 		token = value;
+		prepareComponents();
+	})
+});
 
+//------------------------------------------------------------------------------------------------------------------
+//-- Prepare Components for Connecting to Video Service
+
+function prepareComponents() {
+	if(token !== null && token !== undefined && token.length > 0) {
 		var roomElement = $('div#room');
 		roomElement.removeClass('loading');
 
 		messageElement.html('Telehealth Preview');
-
 		console.log(`token: ${token}`);
 
-		createLocalTracks().then(tracks => {
+		createLocalTracks().then(t => {
+			tracks = t;
 			connectOptions.tracks = tracks;
 
-			tracks.forEach(t => {
-				selfVideo.appendChild(t.attach());
+			tracks.forEach(track => {
+				if(track.kind === 'video') { videoTrack = track; }
+				else if(track.kind === 'audio') { audioTrack = track; }
+
+				selfVideo.appendChild(track.attach());
 			});
 
 			toggleVideoLocation(true, true);
 			afterRoomChanged(false);
 		});
-	})
+	}
+}
+
+//------------------------------------------------------------------------------------------------------------------
+//-- Add Participant Video and Audio
+
+document.addEventListener("visibilitychange", async () => {
+	console.info('visibility changed ' + document.visibilityState);
+
+	if(document.visibilityState == 'hidden') {
+		if(videoTrack !== null && audioTrack !== null) {
+			console.info('Stop Tracks');
+			videoTrack.stop();
+			audioTrack.stop();
+
+			if(room !== null && room.localParticipant !== null) {
+				await room.localParticipant.unpublishTrack(videoTrack);
+				await room.localParticipant.unpublishTrack(audioTrack);
+			}
+		}
+	}
+	else {
+		audioTrack = await createLocalAudioTrack();
+		videoTrack = await createLocalVideoTrack();
+
+		selfVideo.appendChild(videoTrack.attach());
+		selfVideo.appendChild(videoTrack.attach());
+			
+		if(room !== null && room.localParticipant !== null) {
+			await room.localParticipant.publishTrack(videoTrack);
+			await room.localParticipant.publishTrack(audioTrack);
+		}
+	}
 });
 
 //------------------------------------------------------------------------------------------------------------------
@@ -31371,7 +32097,7 @@ function connectCall() {
 
 		afterRoomChanged(true);
 	}).catch(reason => {
-		console.error(reason);
+		console.info(reason);
 	});
 }
 
@@ -31427,6 +32153,9 @@ function disconnectCall() {
 	if(room != null) {
 		room.disconnect();
 	}
+
+	toggleVideoLocation(true, true);
+	afterRoomChanged(false);
 }
 
 //------------------------------------------------------------------------------------------------------------------
@@ -31560,8 +32289,7 @@ $(document).ready(() => {
 	});
 
 	$('#mute-button').click(toggleMute);
-
 	$('#share-video-button').click(toggleShareVideo);
 });
 
-},{"twilio-video":41}]},{},[170]);
+},{"twilio-video":41}]},{},[173]);

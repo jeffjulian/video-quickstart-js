@@ -81,21 +81,3 @@ different than the one where your application server is running.
 The project contains some use-case examples for the Twilio Video JS SDK. After running the application
 by following the instructions above, go to [http://localhost:3000/examples](http://localhost:3000/examples)
 to try them out.
-
-## Simple ScriptPro Solution
-
-### To build, run
-
-```bash
-npm run build:simple
-```
-
-### To Test
-
-1. Create New Session Via [Demo](https://dev.vcall.us/call/demo)
-2. Open Session by clicking on the Pharmacy URL
-3. Copy the Querystring and Open the [Simple Video URL](https://simple.vcall.us) and paste it at the end
-
-### Build SCSS
-
-Press Ctrl + Shift + ~

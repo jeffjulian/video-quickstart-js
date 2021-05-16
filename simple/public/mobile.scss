@@ -12,7 +12,7 @@
 		min-width: 100%;
 		width: 100%;
 		max-width: 100%;
-		padding-top: 20%;
+		padding-top: 50%;
 		position: absolute;
 		left: 0;
 		top: 0;
@@ -71,6 +71,7 @@
 	}
 
 	.video-track {
+		overflow: hidden;
 
 		&.primary {
 			position: absolute;
@@ -163,6 +164,27 @@
 	#share-video-button {	
 		bottom: 25px;
 		font-size: 8px !important;
+	}
+
+	#participant-info-section {
+		position: absolute;	
+		z-index: 20;
+		background-color:rgba(255, 255, 255, .6);
+		padding: 10px;
+		top: 0px;
+		left: 0px;
+		margin: 15px;
+		width: calc(100% - 30px);
+
+		&> .name-label {
+			font-size: 2.0em;
+			font-weight: bold;
+			
+		}
+
+		&> .birthdate-label {
+			font-size: 1.5em;
+		}
 	}
 }
 

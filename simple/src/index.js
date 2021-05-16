@@ -1,6 +1,6 @@
 'use strict';
 
-const { createLocalTracks, connect } = require('twilio-video');
+const { createLocalTracks, createLocalVideoTrack, createLocalAudioTrack, connect } = require('twilio-video');
 
 const selfVideo = document.getElementById('self-video');
 const participantVideo = document.getElementById('participant-video');
@@ -10,11 +10,23 @@ let roomName = params.get('roomName');
 let identity = params.get('identity');
 let roomSid = params.get('roomSid');
 let messageElement = $('#message');
-let isPharmacy = false;
+
+const participantInfo = $('#participant-info-section');
+const participantName = $('#participant-name', participantInfo);
+const participantBirthdate = $('#participant-birthdate', participantInfo);
+
+//-- Server-side Fill Elements
+let isPharmacy = true; 
+let name = 'Jeff Julian';
+let birthDate = 'May 3, 1981';
 
 let token = null;
 let room = null;
 let roomJoined = false;
+
+let tracks = null;
+let videoTrack = null;
+let audioTrack = null;
 
 const connectOptions = {
 	bandwidthProfile: {
@@ -38,30 +50,79 @@ const connectOptions = {
 	name: roomName
 };
 
+if(isPharmacy) {
+	participantInfo.removeClass('hidden');
+	participantName.html(name);
+	participantBirthdate.html(birthDate);
+}
+
 messageElement.html('Loading...');
 
 fetch(`https://dev.vcall.us/scripts/token?identity=${identity}&roomSid=${roomSid}&roomName=${roomName}`).then(response => {
 	response.text().then(value => {
 		token = value;
+		prepareComponents();
+	})
+});
 
+//------------------------------------------------------------------------------------------------------------------
+//-- Prepare Components for Connecting to Video Service
+
+function prepareComponents() {
+	if(token !== null && token !== undefined && token.length > 0) {
 		var roomElement = $('div#room');
 		roomElement.removeClass('loading');
 
 		messageElement.html('Telehealth Preview');
-
 		console.log(`token: ${token}`);
 
-		createLocalTracks().then(tracks => {
+		createLocalTracks().then(t => {
+			tracks = t;
 			connectOptions.tracks = tracks;
 
-			tracks.forEach(t => {
-				selfVideo.appendChild(t.attach());
+			tracks.forEach(track => {
+				if(track.kind === 'video') { videoTrack = track; }
+				else if(track.kind === 'audio') { audioTrack = track; }
+
+				selfVideo.appendChild(track.attach());
 			});
 
 			toggleVideoLocation(true, true);
 			afterRoomChanged(false);
 		});
-	})
+	}
+}
+
+//------------------------------------------------------------------------------------------------------------------
+//-- Add Participant Video and Audio
+
+document.addEventListener("visibilitychange", async () => {
+	console.info('visibility changed ' + document.visibilityState);
+
+	if(document.visibilityState == 'hidden') {
+		if(videoTrack !== null && audioTrack !== null) {
+			console.info('Stop Tracks');
+			videoTrack.stop();
+			audioTrack.stop();
+
+			if(room !== null && room.localParticipant !== null) {
+				await room.localParticipant.unpublishTrack(videoTrack);
+				await room.localParticipant.unpublishTrack(audioTrack);
+			}
+		}
+	}
+	else {
+		audioTrack = await createLocalAudioTrack();
+		videoTrack = await createLocalVideoTrack();
+
+		selfVideo.appendChild(videoTrack.attach());
+		selfVideo.appendChild(videoTrack.attach());
+			
+		if(room !== null && room.localParticipant !== null) {
+			await room.localParticipant.publishTrack(videoTrack);
+			await room.localParticipant.publishTrack(audioTrack);
+		}
+	}
 });
 
 //------------------------------------------------------------------------------------------------------------------
@@ -131,7 +192,7 @@ function connectCall() {
 
 		afterRoomChanged(true);
 	}).catch(reason => {
-		console.error(reason);
+		console.info(reason);
 	});
 }
 
@@ -187,6 +248,9 @@ function disconnectCall() {
 	if(room != null) {
 		room.disconnect();
 	}
+
+	toggleVideoLocation(true, true);
+	afterRoomChanged(false);
 }
 
 //------------------------------------------------------------------------------------------------------------------
@@ -320,6 +384,5 @@ $(document).ready(() => {
 	});
 
 	$('#mute-button').click(toggleMute);
-
 	$('#share-video-button').click(toggleShareVideo);
 });
