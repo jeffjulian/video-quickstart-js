@@ -19,6 +19,7 @@ const participantBirthdate = $('#participant-birthdate', participantInfo);
 let isPharmacy = true; 
 let name = 'Jeff Julian';
 let birthDate = 'May 3, 1981';
+let hostAndScheme = 'https://dev.vcall.us';
 
 let token = null;
 let room = null;
@@ -58,7 +59,7 @@ if(isPharmacy) {
 
 messageElement.html('Loading...');
 
-fetch(`https://dev.vcall.us/scripts/token?identity=${identity}&roomSid=${roomSid}&roomName=${roomName}`).then(response => {
+fetch(`${hostAndScheme}/scripts/token?identity=${identity}&roomSid=${roomSid}&roomName=${roomName}`).then(response => {
 	response.text().then(value => {
 		token = value;
 		prepareComponents();
@@ -87,6 +88,7 @@ function prepareComponents() {
 				selfVideo.appendChild(track.attach());
 			});
 
+			////setOrientation(videoTrack, selfVideo);
 			toggleVideoLocation(true, true);
 			afterRoomChanged(false);
 		});
@@ -101,7 +103,6 @@ document.addEventListener("visibilitychange", async () => {
 
 	if(document.visibilityState == 'hidden') {
 		if(videoTrack !== null && audioTrack !== null) {
-			console.info('Stop Tracks');
 			videoTrack.stop();
 			audioTrack.stop();
 
@@ -109,15 +110,23 @@ document.addEventListener("visibilitychange", async () => {
 				await room.localParticipant.unpublishTrack(videoTrack);
 				await room.localParticipant.unpublishTrack(audioTrack);
 			}
+
+			selfVideo.innerHTML = '';
 		}
 	}
 	else {
-		audioTrack = await createLocalAudioTrack();
-		videoTrack = await createLocalVideoTrack();
+		if(selfVideo.getElementsByTagName('video').length === 0) {
+			videoTrack = await createLocalVideoTrack();
+			selfVideo.appendChild(videoTrack.attach());
+		}
 
-		selfVideo.appendChild(videoTrack.attach());
-		selfVideo.appendChild(videoTrack.attach());
-			
+		if(selfVideo.getElementsByTagName('audio').length === 0) {
+			audioTrack = await createLocalAudioTrack();
+			selfVideo.appendChild(audioTrack.attach());
+		}
+		
+		setOrientation(selfVideo);
+	
 		if(room !== null && room.localParticipant !== null) {
 			await room.localParticipant.publishTrack(videoTrack);
 			await room.localParticipant.publishTrack(audioTrack);
@@ -130,10 +139,10 @@ document.addEventListener("visibilitychange", async () => {
 
 function addParticipant(track) {
 	if (track.isEnabled && room.localParticipant.identity !== track.identity) {
-
 		console.warn(`Remote Participant Joined - ${track.identity}`);
 		participantVideo.appendChild(track.attach());
-
+		
+		setOrientation(participantVideo);
 		toggleVideoLocation(true, false);
 		afterRoomChanged(true); 
 	}
@@ -152,6 +161,22 @@ function toggleCall(connect) {
 		disconnectCall();
 	}
 }
+
+//------------------------------------------------------------------------------------------------------------------
+//-- Associate Orientation with Video HTML Element
+
+function setOrientation(videoElement) {
+	if(videoElement !== null && videoElement !== undefined) {
+		videoElement.classList.add(videoElement.offsetWidth > videoElement.offsetHeight ? 'landscape' : 'portrait');
+		videoElement.classList.remove(videoElement.offsetWidth <= videoElement.offsetHeight ? 'landscape' : 'portrait');
+	}
+}
+
+$(window).resize(function () { 
+	console.info('resized');
+	setOrientation(selfVideo); 
+	setOrientation(participantVideo); 
+});
 
 //------------------------------------------------------------------------------------------------------------------
 //-- Connect Call to Twilio
