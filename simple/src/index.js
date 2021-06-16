@@ -1,6 +1,7 @@
 'use strict';
 
-const { createLocalTracks, createLocalVideoTrack, createLocalAudioTrack, connect } = require('twilio-video');
+const { createLocalTracks, createLocalVideoTrack, createLocalAudioTrack, connect, Logger } = require('twilio-video');
+const Video = require('twilio/lib/rest/Video');
 
 const selfVideo = document.getElementById('self-video');
 const participantVideo = document.getElementById('participant-video');
@@ -19,7 +20,13 @@ const participantBirthdate = $('#participant-birthdate', participantInfo);
 let isPharmacy = true; 
 let name = 'Jeff Julian';
 let birthDate = 'May 3, 1981';
-let hostAndScheme = 'https://dev.vcall.us';
+let hostAndScheme = 'https://vcall.us';
+
+//-- Server-side Fill Elements
+//let isPharmacy = [[IS_PHARMACY]];
+//let name = '[[PARTICIPANT_NAME]]';
+//let birthDate = '[[PARTICIPANT_BIRTHDATE]]';
+//let hostAndScheme = '[[SERVER_URL]]';
 
 let token = null;
 let room = null;
@@ -34,13 +41,8 @@ const connectOptions = {
 		video: {
 			dominantSpeakerPriority: 'high',
 			mode: 'collaboration',
-			renderDimensions: {
-				high: { height: 720, width: 1280 },
-				standard: { height: 90, width: 160 }
-			}
 		}
 	},
-	logLevel: 'debug',
 	maxAudioBitrate: 16000,
 	video: {
 		height: 720,
@@ -50,6 +52,9 @@ const connectOptions = {
 	},
 	name: roomName
 };
+
+var logger = Logger.getLogger('twilio-video');
+logger.setLevel('WARN');
 
 if(isPharmacy) {
 	participantInfo.removeClass('hidden');
@@ -63,7 +68,7 @@ fetch(`${hostAndScheme}/scripts/token?identity=${identity}&roomSid=${roomSid}&ro
 	response.text().then(value => {
 		token = value;
 		prepareComponents();
-	})
+	});
 });
 
 //------------------------------------------------------------------------------------------------------------------
@@ -88,7 +93,6 @@ function prepareComponents() {
 				selfVideo.appendChild(track.attach());
 			});
 
-			////setOrientation(videoTrack, selfVideo);
 			toggleVideoLocation(true, true);
 			afterRoomChanged(false);
 		});
@@ -124,13 +128,17 @@ document.addEventListener("visibilitychange", async () => {
 			audioTrack = await createLocalAudioTrack();
 			selfVideo.appendChild(audioTrack.attach());
 		}
-		
-		setOrientation(selfVideo);
-	
+
 		if(room !== null && room.localParticipant !== null) {
 			await room.localParticipant.publishTrack(videoTrack);
 			await room.localParticipant.publishTrack(audioTrack);
 		}
+		
+		setTrackOrientation();
+
+		//-- Reconfigure Mute
+		toggleMuteInRoom(isMutedAudio());
+		toggleShareVideoInRoom(isMutedVideo());
 	}
 });
 
@@ -142,7 +150,6 @@ function addParticipant(track) {
 		console.warn(`Remote Participant Joined - ${track.identity}`);
 		participantVideo.appendChild(track.attach());
 		
-		setOrientation(participantVideo);
 		toggleVideoLocation(true, false);
 		afterRoomChanged(true); 
 	}
@@ -165,17 +172,42 @@ function toggleCall(connect) {
 //------------------------------------------------------------------------------------------------------------------
 //-- Associate Orientation with Video HTML Element
 
-function setOrientation(videoElement) {
-	if(videoElement !== null && videoElement !== undefined) {
-		videoElement.classList.add(videoElement.offsetWidth > videoElement.offsetHeight ? 'landscape' : 'portrait');
-		videoElement.classList.remove(videoElement.offsetWidth <= videoElement.offsetHeight ? 'landscape' : 'portrait');
+function setTrackOrientation() {
+
+	if(room == null)
+	{
+		return;
 	}
+
+	if(room.localParticipant !== null && room.localParticipant !== undefined) {
+		room.localParticipant.videoTracks.forEach(publication => {
+			var track = publication.track;
+			
+			if(track !== null) {
+				console.info(`local setTrackOrientation (width: ${track.dimensions.width}, height: ${track.dimensions.height})`);
+				selfVideo.classList.add(track.dimensions.width > track.dimensions.height ? 'landscape' : 'portrait');
+				selfVideo.classList.remove(track.dimensions.width <= track.dimensions.height ? 'landscape' : 'portrait');
+			}
+
+		});
+	}
+	
+	room.participants.forEach(participant => {
+		participant.videoTracks.forEach(publication => {
+			var track = publication.track;
+
+			if(track !== null) {
+				console.info(`participant setTrackOrientation (width: ${track.dimensions.width}, height: ${track.dimensions.height})`);
+				participantVideo.classList.add(track.dimensions.width > track.dimensions.height ? 'landscape' : 'portrait');
+				participantVideo.classList.remove(track.dimensions.width <= track.dimensions.height ? 'landscape' : 'portrait');
+			}
+		});
+	});
 }
 
 $(window).resize(function () { 
-	console.info('resized');
-	setOrientation(selfVideo); 
-	setOrientation(participantVideo); 
+	console.info('resized'); 
+	setTrackOrientation(); 
 });
 
 //------------------------------------------------------------------------------------------------------------------
@@ -216,6 +248,8 @@ function connectCall() {
 		});
 
 		afterRoomChanged(true);
+		setTrackOrientation();
+
 	}).catch(reason => {
 		console.info(reason);
 	});
@@ -264,6 +298,8 @@ function afterRoomChanged(connected) {
 		icon.addClass('fa-phone-alt');
 		icon.removeClass('fa-times');
 	}
+
+	setTrackOrientation();
 }
 
 //------------------------------------------------------------------------------------------------------------------
@@ -323,6 +359,10 @@ function toggleMute() {
 	}
 }
 
+function isMutedAudio() {
+	return $('#mute-button i').hasClass('fa-microphone-alt-slash');
+}
+
 //------------------------------------------------------------------------------------------------------------------
 //-- Toggle Mute In Room
 
@@ -368,6 +408,10 @@ function toggleShareVideo() {
 
 		toggleShareVideoInRoom(true);
 	}
+}
+
+function isMutedVideo() {
+	return $('#share-video-button i').hasClass('fa-video-slash');
 }
 
 //------------------------------------------------------------------------------------------------------------------
