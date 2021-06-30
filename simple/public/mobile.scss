@@ -47,8 +47,6 @@
 				content: 'Join'
 			}
 		}
-
-
 	}
 
 	&.connected {
@@ -61,6 +59,31 @@
 			}
 		}
 
+		.video-track {
+			&.landscape,
+			&.landscape.primary {
+				@media screen and (orientation:portrait) {
+					max-height: 66% !important;
+				}
+			}
+
+			&.landscape.primary {
+				@media screen and (orientation:portrait) {
+					position: relative !important;
+					top: 50%;
+					transform: translateY(-50%);
+				}
+			}
+	
+			&.portrait,
+			&.portrait.primary {
+				@media screen and (orientation:landscape) {
+					max-width: 66%;
+					margin-left: auto;
+					margin-right: auto;
+				}	
+			}	
+		}
 	}
 
 	&.loading {
@@ -74,27 +97,11 @@
 	.video-track {
 		overflow: hidden;
 
-		&.landscape {
-			@media screen and (orientation:portrait) {
-				max-height: 66%;
-				margin-left: auto;
-				margin-right: auto;
-			}
-		}
-
-		&.portrait {
-			@media screen and (orientation:landscape) {
-				max-width: 66%;
-				margin-left: auto;
-				margin-right: auto;
-			}	
-		}	
-
 		&.primary {
 			position: absolute;
 			left: 0;
 			right: 0;
-			background-color: #eeeeee;
+			background-color: #333;
 			height: 100%;
 		}
 
@@ -212,6 +219,12 @@
 	#share-video-button {	
 		bottom: 25px;
 		font-size: 8px !important;
+	}
+
+	#call-button, #mute-button, #share-video-button {
+		&:hover {
+			cursor: pointer;
+		}
 	}
 
 	#participant-info-section {

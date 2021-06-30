@@ -60096,10 +60096,16 @@ const participantName = $('#participant-name', participantInfo);
 const participantBirthdate = $('#participant-birthdate', participantInfo);
 
 //-- Server-side Fill Elements
-let isPharmacy = true; 
+let isPharmacy = true;
 let name = 'Jeff Julian';
 let birthDate = 'May 3, 1981';
 let hostAndScheme = 'https://vcall.us';
+
+//-- Server-side Fill Elements
+//let isPharmacy = [[IS_PHARMACY]];
+//let name = '[[PARTICIPANT_NAME]]';
+//let birthDate = '[[PARTICIPANT_BIRTHDATE]]';
+//let hostAndScheme = '[[SERVER_URL]]';
 
 let token = null;
 let room = null;
@@ -60129,26 +60135,43 @@ const connectOptions = {
 var logger = Logger.getLogger('twilio-video');
 logger.setLevel('WARN');
 
-if(isPharmacy) {
+if (isPharmacy) {
 	participantInfo.removeClass('hidden');
 	participantName.html(name);
 	participantBirthdate.html(birthDate);
 }
 
-messageElement.html('Loading...');
+navigator.getUserMedia({
+		video: true,
+		audio: true
+	},
+	function (localMediaStream) {
+		messageElement.html('Loading...');
 
-fetch(`${hostAndScheme}/scripts/token?identity=${identity}&roomSid=${roomSid}&roomName=${roomName}`).then(response => {
-	response.text().then(value => {
-		token = value;
-		prepareComponents();
-	});
-});
+		fetch(`${hostAndScheme}/scripts/token?identity=${identity}&roomSid=${roomSid}&roomName=${roomName}`).then(response => {
+			response.text().then(value => {
+				token = value;
+				prepareComponents();
+			});
+		});
+	},
+	function (err) {
+
+		if (err.name === 'NotAllowedError' || err.message === 'Permission denied' || err.message === 'Permission dismissed') {
+			messageElement.html('To conduct a Telehealth session, we will need permission to your camera and microphone.  Please refresh the browser and click Allow for access to these devices.');
+		}	
+		else {
+			messageElement.html('An unexpected error has occurred.  Please refresh the browser and click Allow for access to the video and audio device request.');
+			console.log(err.name + ": " + err.message);
+		}
+	}
+);
 
 //------------------------------------------------------------------------------------------------------------------
 //-- Prepare Components for Connecting to Video Service
 
 function prepareComponents() {
-	if(token !== null && token !== undefined && token.length > 0) {
+	if (token !== null && token !== undefined && token.length > 0) {
 		var roomElement = $('div#room');
 		roomElement.removeClass('loading');
 
@@ -60160,8 +60183,8 @@ function prepareComponents() {
 			connectOptions.tracks = tracks;
 
 			tracks.forEach(track => {
-				if(track.kind === 'video') { videoTrack = track; }
-				else if(track.kind === 'audio') { audioTrack = track; }
+				if (track.kind === 'video') { videoTrack = track; }
+				else if (track.kind === 'audio') { audioTrack = track; }
 
 				selfVideo.appendChild(track.attach());
 			});
@@ -60177,36 +60200,9 @@ function prepareComponents() {
 
 document.addEventListener("visibilitychange", async () => {
 	console.info('visibility changed ' + document.visibilityState);
+	await toggleBrowserVideoUsageAsync(document.visibilityState == 'hidden');
 
-	if(document.visibilityState == 'hidden') {
-		if(videoTrack !== null && audioTrack !== null) {
-			videoTrack.stop();
-			audioTrack.stop();
-
-			if(room !== null && room.localParticipant !== null) {
-				await room.localParticipant.unpublishTrack(videoTrack);
-				await room.localParticipant.unpublishTrack(audioTrack);
-			}
-
-			selfVideo.innerHTML = '';
-		}
-	}
-	else {
-		if(selfVideo.getElementsByTagName('video').length === 0) {
-			videoTrack = await createLocalVideoTrack();
-			selfVideo.appendChild(videoTrack.attach());
-		}
-
-		if(selfVideo.getElementsByTagName('audio').length === 0) {
-			audioTrack = await createLocalAudioTrack();
-			selfVideo.appendChild(audioTrack.attach());
-		}
-
-		if(room !== null && room.localParticipant !== null) {
-			await room.localParticipant.publishTrack(videoTrack);
-			await room.localParticipant.publishTrack(audioTrack);
-		}
-		
+	if (document.visibilityState != 'hidden') {
 		setTrackOrientation();
 
 		//-- Reconfigure Mute
@@ -60222,9 +60218,9 @@ function addParticipant(track) {
 	if (track.isEnabled && room.localParticipant.identity !== track.identity) {
 		console.warn(`Remote Participant Joined - ${track.identity}`);
 		participantVideo.appendChild(track.attach());
-		
+
 		toggleVideoLocation(true, false);
-		afterRoomChanged(true); 
+		afterRoomChanged(true);
 	}
 }
 
@@ -60234,7 +60230,7 @@ function addParticipant(track) {
 function toggleCall(connect) {
 	console.log(`toggleCall(${connect})`);
 
-	if(!connect) {
+	if (!connect) {
 		connectCall();
 	}
 	else {
@@ -60247,16 +60243,15 @@ function toggleCall(connect) {
 
 function setTrackOrientation() {
 
-	if(room == null)
-	{
+	if (room == null) {
 		return;
 	}
 
-	if(room.localParticipant !== null && room.localParticipant !== undefined) {
+	if (room.localParticipant !== null && room.localParticipant !== undefined) {
 		room.localParticipant.videoTracks.forEach(publication => {
 			var track = publication.track;
-			
-			if(track !== null) {
+
+			if (track !== null) {
 				console.info(`local setTrackOrientation (width: ${track.dimensions.width}, height: ${track.dimensions.height})`);
 				selfVideo.classList.add(track.dimensions.width > track.dimensions.height ? 'landscape' : 'portrait');
 				selfVideo.classList.remove(track.dimensions.width <= track.dimensions.height ? 'landscape' : 'portrait');
@@ -60264,12 +60259,12 @@ function setTrackOrientation() {
 
 		});
 	}
-	
+
 	room.participants.forEach(participant => {
 		participant.videoTracks.forEach(publication => {
 			var track = publication.track;
 
-			if(track !== null) {
+			if (track !== null) {
 				console.info(`participant setTrackOrientation (width: ${track.dimensions.width}, height: ${track.dimensions.height})`);
 				participantVideo.classList.add(track.dimensions.width > track.dimensions.height ? 'landscape' : 'portrait');
 				participantVideo.classList.remove(track.dimensions.width <= track.dimensions.height ? 'landscape' : 'portrait');
@@ -60278,9 +60273,9 @@ function setTrackOrientation() {
 	});
 }
 
-$(window).resize(function () { 
-	console.info('resized'); 
-	setTrackOrientation(); 
+$(window).resize(function () {
+	console.info('resized');
+	setTrackOrientation();
 });
 
 //------------------------------------------------------------------------------------------------------------------
@@ -60301,16 +60296,16 @@ function connectCall() {
 		room.on('trackSubscribed', (t) => {
 			addParticipant(t);
 		});
-		room.on('reconnected', () => { 
-			afterRoomChanged(true); 
+		room.on('reconnected', () => {
+			afterRoomChanged(true);
 		});
 		room.on('disconnected', (room, error) => {
 			afterRoomChanged(false);
 			messageElement.html('Disconnected');
-			
-			if(error != null) {
-				if (error.code === 20104) { console.log('Signaling reconnection failed due to expired AccessToken!'); } 
-				else if (error.code === 53000) { console.log('Signaling reconnection attempts exhausted!'); } 
+
+			if (error != null) {
+				if (error.code === 20104) { console.log('Signaling reconnection failed due to expired AccessToken!'); }
+				else if (error.code === 53000) { console.log('Signaling reconnection attempts exhausted!'); }
 				else if (error.code === 53204) { console.log('Signaling reconnection took too long!'); }
 			}
 		});
@@ -60333,15 +60328,15 @@ function connectCall() {
 
 function afterRoomChanged(connected) {
 	roomJoined = connected;
-	
-	if($('#share-video-button > i').hasClass('fa-video')) {
+
+	if ($('#share-video-button > i').hasClass('fa-video')) {
 		toggleShareVideoInRoom(false);
 	}
 	else {
 		toggleShareVideoInRoom(true);
 	}
 
-	if($('#mute-button > i').hasClass('fa-microphone-alt')) {
+	if ($('#mute-button > i').hasClass('fa-microphone-alt')) {
 		toggleMuteInRoom(false);
 	}
 	else {
@@ -60354,13 +60349,12 @@ function afterRoomChanged(connected) {
 	var roomElement = $('div#room');
 	roomElement.addClass(connected ? 'connected' : 'disconnected');
 	roomElement.removeClass(connected ? 'disconnected' : 'connected');
-	
-	if(connected) {
+
+	if (connected) {
 		if (participantVideo.innerHTML === '') {
 			messageElement.html('Waiting on ' + (isPharmacy ? 'patient' : 'clinician') + '...');
 		}
-		else 
-		{
+		else {
 			messageElement.html('');
 		}
 
@@ -60379,7 +60373,7 @@ function afterRoomChanged(connected) {
 //-- Disconnect Call to Twilio
 
 function disconnectCall() {
-	if(room != null) {
+	if (room != null) {
 		room.disconnect();
 	}
 
@@ -60415,7 +60409,7 @@ function toggleMute() {
 	var icon = $('i', muteButton);
 
 	//-- Mute Call
-	if(icon.hasClass('fa-microphone-alt')) {
+	if (icon.hasClass('fa-microphone-alt')) {
 		icon.addClass('fa-microphone-alt-slash');
 		icon.removeClass('fa-microphone-alt');
 		muteButton.addClass('muted-call');
@@ -60442,13 +60436,13 @@ function isMutedAudio() {
 function toggleMuteInRoom(muted) {
 	console.log(`toggleMuteInRoom(${muted})`);
 
-	if(room != null && room.localParticipant != null && room.localParticipant.audioTracks != null) {
+	if (room != null && room.localParticipant != null && room.localParticipant.audioTracks != null) {
 		console.log('audio track review');
 
 		room.localParticipant.audioTracks.forEach((map) => {
 			console.log(`local audio track (${muted})`);
 
-			if(muted) {
+			if (muted) {
 				map.track.disable();
 			}
 			else {
@@ -60466,7 +60460,7 @@ function toggleShareVideo() {
 	var icon = $('i', shareVideoButton);
 
 	//-- Share Video
-	if(icon.hasClass('fa-video-slash')) {
+	if (icon.hasClass('fa-video-slash')) {
 		icon.addClass('fa-video');
 		icon.removeClass('fa-video-slash');
 		shareVideoButton.removeClass('disable-video');
@@ -60491,21 +60485,58 @@ function isMutedVideo() {
 //-- Toggle Video Window
 
 function toggleShareVideoInRoom(disabled) {
-	console.log(`toggleShareVideoInRoom(${disabled})`);
+	console.log(`toggleShareVideoInRoom(disabled: ${disabled})`);
 
-	if(room != null && room.localParticipant != null && room.localParticipant.videoTracks != null) {
+	if (room != null && room.localParticipant != null && room.localParticipant.videoTracks != null) {
 		console.log('video track review');
 
 		room.localParticipant.videoTracks.forEach((map) => {
-			console.log(`local video track (${disabled})`);
-
-			if(disabled) {
+			if (disabled) {
 				map.track.disable();
 			}
 			else {
 				map.track.enable();
 			}
+
+			console.log(`local video track (disabled: ${disabled})`);
 		});
+	}
+
+	toggleBrowserVideoUsageAsync(disabled);
+}
+
+//------------------------------------------------------------------------------------------------------------------
+//-- Toggle Browser Video Usage
+
+async function toggleBrowserVideoUsageAsync(disabled) {
+	if (disabled) {
+		if (videoTrack !== null && audioTrack !== null) {
+			videoTrack.stop();
+			audioTrack.stop();
+
+			if (room !== null && room.localParticipant !== null) {
+				await room.localParticipant.unpublishTrack(videoTrack);
+				await room.localParticipant.unpublishTrack(audioTrack);
+			}
+
+			selfVideo.innerHTML = '';
+		}
+	}
+	else {
+		if (selfVideo.getElementsByTagName('video').length === 0) {
+			videoTrack = await createLocalVideoTrack();
+			selfVideo.appendChild(videoTrack.attach());
+		}
+
+		if (selfVideo.getElementsByTagName('audio').length === 0) {
+			audioTrack = await createLocalAudioTrack();
+			selfVideo.appendChild(audioTrack.attach());
+		}
+
+		if (room !== null && room.localParticipant !== null) {
+			await room.localParticipant.publishTrack(videoTrack);
+			await room.localParticipant.publishTrack(audioTrack);
+		}
 	}
 }
 
